@@ -41,28 +41,28 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Weather Overview</CardTitle>
-            <CardDescription>Current conditions in Napa Valley, CA</CardDescription>
+            <CardDescription>Current conditions in Nashik, Maharashtra</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-4">
             <div className="flex items-center gap-4">
               <Sun className="h-8 w-8 text-yellow-500" />
               <div>
-                <div className="text-2xl font-bold">72°F</div>
+                <div className="text-2xl font-bold">28°C</div>
                 <div className="text-sm text-muted-foreground">Sunny</div>
               </div>
             </div>
             <div className="flex flex-col gap-2 text-sm">
               <div className="flex items-center gap-2">
                 <Droplets className="h-4 w-4 text-blue-400" />
-                <span>Humidity: 45%</span>
+                <span>Humidity: 65%</span>
               </div>
               <div className="flex items-center gap-2">
                 <Wind className="h-4 w-4 text-gray-400" />
-                <span>Wind: 5 mph</span>
+                <span>Wind: 10 km/h</span>
               </div>
               <div className="flex items-center gap-2">
                 <Cloud className="h-4 w-4 text-gray-300" />
-                <span>UV Index: High</span>
+                <span>UV Index: Very High</span>
               </div>
             </div>
           </CardContent>
