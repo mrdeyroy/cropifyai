@@ -31,18 +31,17 @@ export function Nav() {
     <SidebarMenu>
       {navItems.map((item) => (
         <SidebarMenuItem key={item.href}>
-          <Link href={item.href} passHref legacyBehavior>
             <SidebarMenuButton
               asChild
               isActive={pathname === item.href}
               tooltip={item.label}
+              variant={pathname === item.href ? "outline" : "default"}
             >
-              <React.Fragment>
+              <Link href={item.href}>
                 <item.icon />
                 <span>{item.label}</span>
-              </React.Fragment>
+              </Link>
             </SidebarMenuButton>
-          </Link>
         </SidebarMenuItem>
       ))}
     </SidebarMenu>
