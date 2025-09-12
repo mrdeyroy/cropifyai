@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -75,22 +75,26 @@ export function FarmManagement() {
     },
   });
 
-  const handleFarmChange = (id: string) => {
-    const farm = farms.find((f) => f.id === id);
+  useEffect(() => {
+    const farm = farms.find((f) => f.id === selectedFarmId);
     if (farm) {
-      setSelectedFarmId(id);
-      form.reset({
-        name: farm.name,
-        location: farm.location,
-        soilType: farm.soilType,
-        ph: farm.ph,
-        moisture: farm.moisture,
-        nitrogen: farm.nutrients.nitrogen,
-        phosphorus: farm.nutrients.phosphorus,
-        potassium: farm.nutrients.potassium,
-      });
-      setSuggestions(null);
+        form.reset({
+            name: farm.name,
+            location: farm.location,
+            soilType: farm.soilType,
+            ph: farm.ph,
+            moisture: farm.moisture,
+            nitrogen: farm.nutrients.nitrogen,
+            phosphorus: farm.nutrients.phosphorus,
+            potassium: farm.nutrients.potassium,
+        });
+        setSuggestions(null);
     }
+  }, [selectedFarmId, farms, form]);
+
+
+  const handleFarmChange = (id: string) => {
+    setSelectedFarmId(id);
   };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -174,7 +178,7 @@ export function FarmManagement() {
                       <FormItem>
                         <FormLabel>Location</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Napa Valley, CA" {...field} />
+                          <Input placeholder="e.g., Nashik, Maharashtra" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
