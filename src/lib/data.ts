@@ -8,6 +8,7 @@ export const farms: Farm[] = [
     soilType: "Loam",
     ph: 6.8,
     moisture: 35,
+    temperature: 25,
     nutrients: {
       nitrogen: 120,
       phosphorus: 50,
@@ -21,6 +22,7 @@ export const farms: Farm[] = [
     soilType: "Silty Clay",
     ph: 7.2,
     moisture: 45,
+    temperature: 22,
     nutrients: {
       nitrogen: 150,
       phosphorus: 65,
@@ -34,6 +36,7 @@ export const farms: Farm[] = [
     soilType: "Sandy Loam",
     ph: 6.5,
     moisture: 25,
+    temperature: 28,
     nutrients: {
       nitrogen: 100,
       phosphorus: 40,

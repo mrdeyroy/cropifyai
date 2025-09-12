@@ -5,6 +5,7 @@ export type Farm = {
   soilType: string;
   ph: number;
   moisture: number;
+  temperature: number;
   nutrients: {
     nitrogen: number;
     phosphorus: number;

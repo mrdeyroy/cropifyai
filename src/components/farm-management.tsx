@@ -54,6 +54,7 @@ const formSchema = z.object({
   soilType: z.string().min(2, 'Soil type is required.'),
   ph: z.coerce.number().min(0).max(14),
   moisture: z.coerce.number().min(0).max(100),
+  temperature: z.coerce.number(),
   nitrogen: z.coerce.number().min(0),
   phosphorus: z.coerce.number().min(0),
   potassium: z.coerce.number().min(0),
@@ -82,6 +83,7 @@ export function FarmManagement() {
       soilType: selectedFarm.soilType,
       ph: selectedFarm.ph,
       moisture: selectedFarm.moisture,
+      temperature: selectedFarm.temperature,
       nitrogen: selectedFarm.nutrients.nitrogen,
       phosphorus: selectedFarm.nutrients.phosphorus,
       potassium: selectedFarm.nutrients.potassium,
@@ -97,6 +99,7 @@ export function FarmManagement() {
         soilType: farm.soilType,
         ph: farm.ph,
         moisture: farm.moisture,
+        temperature: farm.temperature,
         nitrogen: farm.nutrients.nitrogen,
         phosphorus: farm.nutrients.phosphorus,
         potassium: farm.nutrients.potassium,
@@ -119,6 +122,7 @@ export function FarmManagement() {
           weatherDataLink: 'https://example.com/weather-api',
           pH: values.ph,
           moistureContent: `${values.moisture}%`,
+          temperature: values.temperature,
           nutrientContent: `N:${values.nitrogen}, P:${values.phosphorus}, K:${values.potassium} ppm`,
           marketDemand: 'High demand for organic produce and grains.',
           pastCropRotationData: 'Corn -> Soybeans -> Wheat',
@@ -288,6 +292,19 @@ export function FarmManagement() {
                       )}
                     />
                   </div>
+                   <FormField
+                      control={form.control}
+                      name="temperature"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Temperature (°C)</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   <div>
                     <h4 className="text-sm font-medium mb-2">
                       {t('farmManagement.nutrientsLabel')}
