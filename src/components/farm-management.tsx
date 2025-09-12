@@ -45,6 +45,7 @@ import { generateCropSuggestions } from '@/ai/flows/generate-crop-suggestions';
 import type { GenerateCropSuggestionsOutput } from '@/ai/flows/generate-crop-suggestions';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/hooks/use-language';
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Farm name must be at least 2 characters.'),
