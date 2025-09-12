@@ -1,0 +1,12 @@
+{
+    "userNav": {
+        "profile": "प्रोफाइल",
+        "language": "भाषा",
+        "logout": "लॉग आउट"
+    },
+    "languageSelector": {
+        "title": "भाषा निवडा",
+        "description": "अनुप्रयोगासाठी तुमची प्राधान्यकृत भाषा निवडा.",
+        "selectPlaceholder": "एक भाषा निवडा"
+    }
+}

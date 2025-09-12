@@ -1,0 +1,12 @@
+{
+    "userNav": {
+        "profile": "Profile",
+        "language": "Language",
+        "logout": "Log out"
+    },
+    "languageSelector": {
+        "title": "Select Language",
+        "description": "Choose your preferred language for the application.",
+        "selectPlaceholder": "Select a language"
+    }
+}
