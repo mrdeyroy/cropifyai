@@ -33,7 +33,7 @@ import {
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/hooks/use-user';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import Script from 'next/script';
 
@@ -47,6 +47,7 @@ export default function SettingsPage() {
   const { user, setUser } = useUser();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -55,6 +56,10 @@ export default function SettingsPage() {
       email: user.email,
     },
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     form.reset({
@@ -70,6 +75,10 @@ export default function SettingsPage() {
       description: 'Your changes have been saved successfully.',
     });
   };
+  
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col gap-8">
