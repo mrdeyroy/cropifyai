@@ -55,7 +55,7 @@ export function Autocomplete({ options, value, onValueChange, placeholder }: Aut
                   key={option.value}
                   value={option.value}
                   onSelect={(currentValue) => {
-                    onValueChange(currentValue);
+                    onValueChange(currentValue === value ? "" : currentValue)
                     setOpen(false)
                   }}
                 >
