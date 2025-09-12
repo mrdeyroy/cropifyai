@@ -39,6 +39,7 @@ import {
   TrendingUp,
   Leaf,
   Target,
+  Download,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateCropSuggestions } from '@/ai/flows/generate-crop-suggestions';
@@ -139,6 +140,23 @@ export function FarmManagement() {
         });
       }
     });
+  };
+
+  const handleDownload = () => {
+    if (!suggestions) return;
+
+    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(
+      JSON.stringify(suggestions, null, 2)
+    )}`;
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute('href', dataStr);
+    downloadAnchorNode.setAttribute(
+      'download',
+      `crop_recommendations_${selectedFarm.name.replace(/\s+/g, '_').toLowerCase()}.json`
+    );
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
   };
 
   return (
@@ -376,12 +394,22 @@ export function FarmManagement() {
       <div className="lg:col-span-1">
         <Card className="min-h-full">
           <CardHeader>
-            <CardTitle>{t('farmManagement.recommendationsTitle')}</CardTitle>
-            <CardDescription>
-              {t('farmManagement.recommendationsDescription', {
-                farmName: selectedFarm.name,
-              })}
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>{t('farmManagement.recommendationsTitle')}</CardTitle>
+                <CardDescription>
+                  {t('farmManagement.recommendationsDescription', {
+                    farmName: selectedFarm.name,
+                  })}
+                </CardDescription>
+              </div>
+              {suggestions && (
+                <Button variant="outline" size="icon" onClick={handleDownload}>
+                  <Download className="h-4 w-4" />
+                  <span className="sr-only">Download Analysis</span>
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {isGenerating && (
