@@ -36,7 +36,6 @@ import {
   Loader2,
   Lightbulb,
   Bot,
-  MapPin,
   TrendingUp,
   Leaf,
   Target,
@@ -44,7 +43,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { generateCropSuggestions } from '@/ai/flows/generate-crop-suggestions';
 import type { GenerateCropSuggestionsOutput } from '@/ai/flows/generate-crop-suggestions';
-import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/hooks/use-language';
 
@@ -136,30 +134,8 @@ export function FarmManagement() {
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
+    <div className="grid gap-8 lg:grid-cols-2">
       <div className="lg:col-span-1 space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-          {farms.map((farm) => (
-            <Card
-              key={farm.id}
-              onClick={() => handleFarmChange(farm.id)}
-              className={cn(
-                'cursor-pointer transition-all',
-                selectedFarmId === farm.id
-                  ? 'ring-2 ring-primary shadow-lg'
-                  : 'hover:shadow-md'
-              )}
-            >
-              <CardHeader>
-                <CardTitle>{farm.name}</CardTitle>
-                <CardDescription className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  {farm.location}
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
         <Card>
           <CardHeader>
             <CardTitle>{t('farmManagement.farmDetailsTitle')}</CardTitle>
@@ -176,6 +152,25 @@ export function FarmManagement() {
                 className="space-y-6"
               >
                 <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="farm-select">Select a Farm</Label>
+                    <Select
+                      value={selectedFarmId}
+                      onValueChange={handleFarmChange}
+                    >
+                      <SelectTrigger id="farm-select">
+                        <SelectValue placeholder="Select a farm" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {farms.map((farm) => (
+                          <SelectItem key={farm.id} value={farm.id}>
+                            {farm.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <FormField
                     control={form.control}
                     name="name"
@@ -355,7 +350,7 @@ export function FarmManagement() {
         </Card>
       </div>
 
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-1">
         <Card className="min-h-full">
           <CardHeader>
             <CardTitle>{t('farmManagement.recommendationsTitle')}</CardTitle>
