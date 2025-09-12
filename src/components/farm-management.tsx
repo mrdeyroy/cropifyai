@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { farms as initialFarms } from '@/lib/data';
+import { farms as initialFarms, indianCities } from '@/lib/data';
 import type { Farm } from '@/lib/types';
 import {
   Card,
@@ -59,9 +59,7 @@ const formSchema = z.object({
   potassium: z.coerce.number().min(0),
 });
 
-const locations = [
-  ...new Set(initialFarms.map((farm) => farm.location)),
-].map((location) => ({ value: location, label: location }));
+const locations = [...new Set(indianCities)].map((location) => ({ value: location, label: location }));
 
 export function FarmManagement() {
   const [farms, setFarms] = useState<Farm[]>(initialFarms);
