@@ -49,6 +49,9 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
+  const [priceAlerts, setPriceAlerts] = useState(false);
+  const [weatherAlerts, setWeatherAlerts] = useState(true);
+
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -84,6 +87,15 @@ export default function SettingsPage() {
         description: 'Failed to update profile. Please try again.',
       });
     }
+  };
+
+  const handleSavePreferences = () => {
+    // In a real app, you would save these preferences to a backend or local storage
+    console.log('Preferences saved:', { language, theme, priceAlerts, weatherAlerts });
+    toast({
+      title: 'Preferences Saved',
+      description: 'Your new preferences have been saved.',
+    });
   };
   
   if (!mounted || !user) {
@@ -182,39 +194,49 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="theme">{t('settingsPage.themeLabel')}</Label>
-              <Select value={theme} onValueChange={setTheme}>
-                <SelectTrigger id="theme">
-                  <SelectValue placeholder={t('settingsPage.themePlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="light">
-                    {t('settingsPage.lightTheme')}
-                  </SelectItem>
-                  <SelectItem value="dark">
-                    {t('settingsPage.darkTheme')}
-                  </SelectItem>
-                  <SelectItem value="system">
-                    {t('settingsPage.systemTheme')}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              {mounted && (
+                <Select value={theme} onValueChange={setTheme}>
+                  <SelectTrigger id="theme">
+                    <SelectValue placeholder={t('settingsPage.themePlaceholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="light">
+                      {t('settingsPage.lightTheme')}
+                    </SelectItem>
+                    <SelectItem value="dark">
+                      {t('settingsPage.darkTheme')}
+                    </SelectItem>
+                    <SelectItem value="system">
+                      {t('settingsPage.systemTheme')}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Switch id="price-alerts" />
+            <Switch 
+              id="price-alerts"
+              checked={priceAlerts}
+              onCheckedChange={setPriceAlerts}
+            />
             <Label htmlFor="price-alerts">
               {t('settingsPage.priceAlertsLabel')}
             </Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Switch id="weather-alerts" defaultChecked />
+            <Switch 
+              id="weather-alerts"
+              checked={weatherAlerts}
+              onCheckedChange={setWeatherAlerts}
+            />
             <Label htmlFor="weather-alerts">
               {t('settingsPage.weatherAlertsLabel')}
             </Label>
           </div>
         </CardContent>
         <CardFooter>
-          <Button>{t('settingsPage.savePreferences')}</Button>
+          <Button onClick={handleSavePreferences}>{t('settingsPage.savePreferences')}</Button>
         </CardFooter>
       </Card>
     </div>
