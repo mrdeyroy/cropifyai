@@ -21,9 +21,44 @@ import {
 } from '@/components/ui/select';
 import { user } from '@/lib/data';
 import { useLanguage } from '@/hooks/use-language';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
+
+const profileSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters.'),
+  email: z.string().email('Please enter a valid email address.'),
+});
 
 export default function SettingsPage() {
   const { t, language, setLanguage } = useLanguage();
+  const { toast } = useToast();
+
+  const form = useForm<z.infer<typeof profileSchema>>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      name: user.name,
+      email: user.email,
+    },
+  });
+
+  const onProfileSubmit = (values: z.infer<typeof profileSchema>) => {
+    // Here you would typically update the user data on your backend
+    console.log('Profile updated:', values);
+    toast({
+      title: 'Profile Saved',
+      description: 'Your changes have been saved successfully.',
+    });
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -34,29 +69,51 @@ export default function SettingsPage() {
         <p className="text-muted-foreground">{t('settingsPage.description')}</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('settingsPage.profileTitle')}</CardTitle>
-          <CardDescription>
-            {t('settingsPage.profileDescription')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <Label htmlFor="name">{t('settingsPage.nameLabel')}</Label>
-              <Input id="name" defaultValue={user.name} />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="email">{t('settingsPage.emailLabel')}</Label>
-              <Input id="email" type="email" defaultValue={user.email} />
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button>{t('settingsPage.saveChanges')}</Button>
-        </CardFooter>
-      </Card>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onProfileSubmit)}>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('settingsPage.profileTitle')}</CardTitle>
+              <CardDescription>
+                {t('settingsPage.profileDescription')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('settingsPage.nameLabel')}</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('settingsPage.emailLabel')}</FormLabel>
+                      <FormControl>
+                        <Input type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button type="submit">{t('settingsPage.saveChanges')}</Button>
+            </CardFooter>
+          </Card>
+        </form>
+      </Form>
 
       <Card>
         <CardHeader>
