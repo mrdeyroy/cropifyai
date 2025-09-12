@@ -13,11 +13,11 @@ import { Logo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { LanguageProvider } from '@/hooks/use-language';
-import { UserProvider } from '@/hooks/use-user';
+import { AuthProvider } from '@/hooks/use-auth';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <UserProvider>
+    <AuthProvider>
       <LanguageProvider>
         <SidebarProvider>
           <Sidebar variant="inset" collapsible="icon">
@@ -55,6 +55,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarInset>
         </SidebarProvider>
       </LanguageProvider>
-    </UserProvider>
+    </AuthProvider>
   );
 }

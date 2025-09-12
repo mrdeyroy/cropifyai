@@ -32,19 +32,19 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { useUser } from '@/hooks/use-user';
+import { useAuth } from '@/hooks/use-auth';
 import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import Script from 'next/script';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
-  email: z.string().email('Please enter a valid email address.'),
+  email: z.string().email('Please enter a valid email address.').optional(),
 });
 
 export default function SettingsPage() {
   const { t, language, setLanguage } = useLanguage();
-  const { user, setUser } = useUser();
+  const { user, updateProfile } = useAuth();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -52,8 +52,8 @@ export default function SettingsPage() {
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user.name,
-      email: user.email,
+      name: user?.displayName || '',
+      email: user?.email || '',
     },
   });
 
@@ -62,21 +62,31 @@ export default function SettingsPage() {
   }, []);
 
   useEffect(() => {
-    form.reset({
-      name: user.name,
-      email: user.email,
-    });
+    if (user) {
+      form.reset({
+        name: user.displayName || '',
+        email: user.email || '',
+      });
+    }
   }, [user, form]);
 
-  const onProfileSubmit = (values: z.infer<typeof profileSchema>) => {
-    setUser({ ...user, ...values });
-    toast({
-      title: 'Profile Saved',
-      description: 'Your changes have been saved successfully.',
-    });
+  const onProfileSubmit = async (values: z.infer<typeof profileSchema>) => {
+    try {
+      await updateProfile({ displayName: values.name });
+      toast({
+        title: 'Profile Saved',
+        description: 'Your changes have been saved successfully.',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to update profile. Please try again.',
+      });
+    }
   };
   
-  if (!mounted) {
+  if (!mounted || !user) {
     return null;
   }
 
@@ -124,7 +134,7 @@ export default function SettingsPage() {
                     <FormItem>
                       <FormLabel>{t('settingsPage.emailLabel')}</FormLabel>
                       <FormControl>
-                        <Input type="email" {...field} />
+                        <Input type="email" {...field} disabled />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

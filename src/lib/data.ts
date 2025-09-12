@@ -1,10 +1,4 @@
-import type { Farm, MarketPrice, User } from './types';
-
-export const user: User = {
-  name: 'Alex Green',
-  email: 'alex.green@cropify.ai',
-  avatar: '/avatars/01.png',
-};
+import type { Farm, MarketPrice } from './types';
 
 export const farms: Farm[] = [
   {

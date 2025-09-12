@@ -1,9 +1,3 @@
-export type User = {
-  name: string;
-  email: string;
-  avatar: string;
-};
-
 export type Farm = {
   id: string;
   name: string;
