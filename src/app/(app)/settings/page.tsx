@@ -34,6 +34,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/hooks/use-user';
 import { useEffect } from 'react';
+import { useTheme } from 'next-themes';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -44,6 +45,7 @@ export default function SettingsPage() {
   const { t, language, setLanguage } = useLanguage();
   const { user, setUser } = useUser();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -156,7 +158,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="theme">{t('settingsPage.themeLabel')}</Label>
-              <Select defaultValue="light">
+              <Select value={theme} onValueChange={setTheme}>
                 <SelectTrigger id="theme">
                   <SelectValue placeholder={t('settingsPage.themePlaceholder')} />
                 </SelectTrigger>
