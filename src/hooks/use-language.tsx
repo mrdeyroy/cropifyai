@@ -12,7 +12,7 @@ const translations = { en, hi, mr };
 type LanguageContextType = {
   language: Language;
   setLanguage: (language: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, values?: Record<string, string>) => string;
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -36,9 +36,18 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('language', lang);
   };
   
-  const t = (key: string): string => {
+  const t = (key: string, values: Record<string, string> = {}): string => {
     const translationSet = translations[language] || translations.en;
-    return getNestedTranslation(translationSet, key);
+    let translation = getNestedTranslation(translationSet, key);
+
+    if (translation) {
+      Object.keys(values).forEach(valueKey => {
+        const regex = new RegExp(`{${valueKey}}`, 'g');
+        translation = translation.replace(regex, values[valueKey]);
+      });
+    }
+
+    return translation;
   };
 
   return (
