@@ -46,6 +46,7 @@ import type { GenerateCropSuggestionsOutput } from '@/ai/flows/generate-crop-sug
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/hooks/use-language';
 import { Label } from '@/components/ui/label';
+import { Autocomplete } from '@/components/ui/autocomplete';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Farm name must be at least 2 characters.'),
@@ -57,6 +58,10 @@ const formSchema = z.object({
   phosphorus: z.coerce.number().min(0),
   potassium: z.coerce.number().min(0),
 });
+
+const locations = [
+  ...new Set(initialFarms.map((farm) => farm.location)),
+].map((location) => ({ value: location, label: location }));
 
 export function FarmManagement() {
   const [farms, setFarms] = useState<Farm[]>(initialFarms);
@@ -197,16 +202,18 @@ export function FarmManagement() {
                     control={form.control}
                     name="location"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>
                           {t('farmManagement.locationLabel')}
                         </FormLabel>
                         <FormControl>
-                          <Input
+                          <Autocomplete
+                            options={locations}
                             placeholder={t(
                               'farmManagement.locationPlaceholder'
                             )}
-                            {...field}
+                            value={field.value}
+                            onValueChange={field.onChange}
                           />
                         </FormControl>
                         <FormMessage />
