@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -15,24 +15,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { marketPrices } from "@/lib/data";
-import { ArrowDown, ArrowUp } from "lucide-react";
-import { MarketTrendChart } from "@/components/market-trend-chart";
+} from '@/components/ui/table';
+import { marketPrices } from '@/lib/data';
+import { ArrowDown, ArrowUp } from 'lucide-react';
+import { MarketTrendChart } from '@/components/market-trend-chart';
 import type { MarketPrice } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/hooks/use-language';
 
 export default function MarketWatchPage() {
-  const [selectedCrop, setSelectedCrop] = useState<MarketPrice>(marketPrices[1]);
+  const [selectedCrop, setSelectedCrop] = useState<MarketPrice>(
+    marketPrices[1]
+  );
+  const { t } = useLanguage();
 
   return (
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="font-headline text-3xl font-bold tracking-tight">
-          Market Watch
+          {t('marketWatchPage.title')}
         </h1>
         <p className="text-muted-foreground">
-          Track real-time market prices and trends for key commodities.
+          {t('marketWatchPage.description')}
         </p>
       </div>
 
@@ -40,27 +44,36 @@ export default function MarketWatchPage() {
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Commodity Prices</CardTitle>
+              <CardTitle>{t('marketWatchPage.pricesTitle')}</CardTitle>
               <CardDescription>
-                Live prices from agricultural markets. Click a row to see the trend.
+                {t('marketWatchPage.pricesDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Crop</TableHead>
-                    <TableHead className="text-right">Price (INR)</TableHead>
-                    <TableHead className="text-right">Change</TableHead>
-                    <TableHead className="text-right">Last Updated</TableHead>
+                    <TableHead>{t('marketWatchPage.cropHeader')}</TableHead>
+                    <TableHead className="text-right">
+                      {t('marketWatchPage.priceHeader')}
+                    </TableHead>
+                    <TableHead className="text-right">
+                      {t('marketWatchPage.changeHeader')}
+                    </TableHead>
+                    <TableHead className="text-right">
+                      {t('marketWatchPage.lastUpdatedHeader')}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {marketPrices.map((item) => (
-                    <TableRow 
-                        key={item.crop} 
-                        onClick={() => setSelectedCrop(item)}
-                        className={cn("cursor-pointer", selectedCrop.crop === item.crop && "bg-muted/50")}
+                    <TableRow
+                      key={item.crop}
+                      onClick={() => setSelectedCrop(item)}
+                      className={cn(
+                        'cursor-pointer',
+                        selectedCrop.crop === item.crop && 'bg-muted/50'
+                      )}
                     >
                       <TableCell className="font-medium">{item.crop}</TableCell>
                       <TableCell className="text-right font-mono">
@@ -68,7 +81,7 @@ export default function MarketWatchPage() {
                       </TableCell>
                       <TableCell
                         className={`text-right font-mono ${
-                          item.change >= 0 ? "text-green-600" : "text-red-600"
+                          item.change >= 0 ? 'text-green-600' : 'text-red-600'
                         }`}
                       >
                         <div className="flex items-center justify-end gap-1">
@@ -93,8 +106,14 @@ export default function MarketWatchPage() {
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle>{selectedCrop.crop} Price Trend</CardTitle>
-              <CardDescription>Last 6 months price history.</CardDescription>
+              <CardTitle>
+                {t('marketWatchPage.trendTitle', {
+                  cropName: selectedCrop.crop,
+                })}
+              </CardTitle>
+              <CardDescription>
+                {t('marketWatchPage.trendDescription')}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <MarketTrendChart data={selectedCrop.history} />
