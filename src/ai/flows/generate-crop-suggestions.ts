@@ -33,7 +33,20 @@ export type GenerateCropSuggestionsInput = z.infer<
 
 const GenerateCropSuggestionsOutputSchema = z.object({
   cropSuggestions: z
-    .array(z.string())
+    .array(
+      z.object({
+        cropName: z.string().describe('The name of the suggested crop.'),
+        yieldForecast: z
+          .string()
+          .describe('The forecasted yield for the crop (e.g., in quintals/acre).'),
+        profitMargin: z
+          .number()
+          .describe('The estimated profit margin as a percentage.'),
+        sustainabilityScore: z
+          .number()
+          .describe('A score from 0 to 100 indicating the sustainability of growing this crop.'),
+      })
+    )
     .describe('An array of crop suggestions tailored to the farm conditions and market demand.'),
   reasoning: z.string().describe('Explanation of the reasoning behind the crop suggestions.'),
 });
@@ -65,8 +78,15 @@ const generateCropSuggestionsPrompt = ai.definePrompt({
   - Weather Forecast: {{{weatherForecast}}}
   - Market Prices: {{{marketPrices}}}
 
-  Considering the current market demand: {{{marketDemand}}}, suggest the most suitable crops for the farmer to plant. Provide a short explanation of your reasoning.
-  Ensure the crop suggestions are provided in an array.
+  Considering the current market demand: {{{marketDemand}}}, suggest the most suitable crops for the farmer to plant. 
+  For each crop, provide the following details:
+  - cropName: The name of the crop.
+  - yieldForecast: The estimated yield in an appropriate unit (e.g., quintals/acre).
+  - profitMargin: An estimated profit margin percentage.
+  - sustainabilityScore: A score from 0 to 100 representing how sustainable the crop is for the given conditions (considering water usage, soil health impact, etc.).
+  
+  Also, provide a short, overall explanation of your reasoning for the suggestions.
+  Ensure the crop suggestions are provided in an array of objects.
   `,
 });
 

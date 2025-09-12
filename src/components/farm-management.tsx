@@ -32,11 +32,12 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Sparkles, Loader2, Lightbulb, Bot, MapPin } from 'lucide-react';
+import { Sparkles, Loader2, Lightbulb, Bot, MapPin, TrendingUp, Leaf, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateCropSuggestions } from '@/ai/flows/generate-crop-suggestions';
 import type { GenerateCropSuggestionsOutput } from '@/ai/flows/generate-crop-suggestions';
 import { cn } from '@/lib/utils';
+import { Progress } from '@/components/ui/progress';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Farm name must be at least 2 characters.'),
@@ -329,22 +330,25 @@ export function FarmManagement() {
                 </Alert>
                 <div className="grid gap-6 md:grid-cols-2">
                   {suggestions.cropSuggestions.map((crop, index) => (
-                    <Card key={index}>
+                    <Card key={index} className="flex flex-col">
                       <CardHeader>
-                        <CardTitle>{crop}</CardTitle>
+                        <CardTitle>{crop.cropName}</CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-4">
-                         <div>
-                            <h4 className="font-semibold">Optimal Conditions (Placeholder)</h4>
-                            <p className="text-sm text-muted-foreground">Temperature: 60-75°F, Rainfall: 25-30 inches</p>
+                      <CardContent className="space-y-4 flex-grow">
+                         <div className="space-y-2">
+                            <h4 className="font-semibold flex items-center gap-2"><Target className="h-4 w-4 text-primary" />Yield Forecast</h4>
+                            <p className="text-sm text-muted-foreground ml-6">{crop.yieldForecast}</p>
                          </div>
-                         <div>
-                            <h4 className="font-semibold">Yield Potential (Placeholder)</h4>
-                            <p className="text-sm text-muted-foreground">High (approx. 180 quintals/acre)</p>
+                         <div className="space-y-2">
+                             <h4 className="font-semibold flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" />Profit Margin</h4>
+                            <p className="text-sm text-muted-foreground ml-6">{crop.profitMargin.toFixed(1)}%</p>
                          </div>
-                         <div>
-                             <h4 className="font-semibold">Market Trends (Placeholder)</h4>
-                            <p className="text-sm text-muted-foreground">Stable demand with potential for price increase due to organic trends.</p>
+                         <div className="space-y-2">
+                            <h4 className="font-semibold flex items-center gap-2"><Leaf className="h-4 w-4 text-primary" />Sustainability Score</h4>
+                            <div className="flex items-center gap-2 ml-6">
+                                <Progress value={crop.sustainabilityScore} className="h-2 w-full" />
+                                <span className="text-sm font-bold">{crop.sustainabilityScore}</span>
+                            </div>
                          </div>
                       </CardContent>
                     </Card>
