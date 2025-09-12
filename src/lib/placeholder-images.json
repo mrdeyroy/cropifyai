@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "diseased-leaf",
+      "description": "A leaf showing signs of disease, used for the crop disease detection feature.",
+      "imageUrl": "https://picsum.photos/seed/leafdisease/800/600",
+      "imageHint": "diseased leaf"
+    }
+  ]
 }
