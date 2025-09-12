@@ -14,13 +14,6 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -38,11 +31,12 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Sparkles, Loader2, Lightbulb, Mic, Bot } from 'lucide-react';
+import { Sparkles, Loader2, Lightbulb, Mic, Bot, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateCropSuggestions } from '@/ai/flows/generate-crop-suggestions';
 import { transcribeVoiceInput } from '@/ai/flows/voice-input-farm-data';
 import type { GenerateCropSuggestionsOutput } from '@/ai/flows/generate-crop-suggestions';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Farm name must be at least 2 characters.'),
@@ -113,7 +107,7 @@ export function FarmManagement() {
           marketDemand: "High demand for organic produce and grains.", // Placeholder
           pastCropRotationData: "Corn -> Soybeans -> Wheat", // Placeholder
           weatherForecast: "Mild spring, hot summer expected.", // Placeholder
-          marketPrices: "Corn: ₹350/bushel, Soybeans: ₹950/bushel", // Placeholder
+          marketPrices: "Corn: ₹1400, Soybeans: ₹3500", // Placeholder
         });
         setSuggestions(result);
       } catch (error) {
@@ -158,32 +152,36 @@ export function FarmManagement() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-3">
-      <div className="lg:col-span-1">
+      <div className="lg:col-span-1 space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+        {farms.map((farm) => (
+            <Card 
+              key={farm.id}
+              onClick={() => handleFarmChange(farm.id)}
+              className={cn(
+                  "cursor-pointer transition-all", 
+                  selectedFarmId === farm.id ? "ring-2 ring-primary shadow-lg" : "hover:shadow-md"
+              )}
+            >
+              <CardHeader>
+                <CardTitle>{farm.name}</CardTitle>
+                <CardDescription className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3"/>
+                    {farm.location}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+        ))}
+        </div>
         <Card>
           <CardHeader>
-            <CardTitle>Farm Profile</CardTitle>
-            <CardDescription>Select a farm to view or edit details.</CardDescription>
+            <CardTitle>Farm Details</CardTitle>
+            <CardDescription>Edit the details for '{selectedFarm.name}'.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="space-y-4">
-                  <Select
-                    onValueChange={handleFarmChange}
-                    defaultValue={selectedFarmId}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a farm profile" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {farms.map((farm) => (
-                        <SelectItem key={farm.id} value={farm.id}>
-                          {farm.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
                   <FormField
                     control={form.control}
                     name="name"
@@ -332,7 +330,7 @@ export function FarmManagement() {
           <CardHeader>
             <CardTitle>AI Crop Recommendations</CardTitle>
             <CardDescription>
-              Based on your farm profile and market data.
+              Based on your farm profile and market data for '{selectedFarm.name}'.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -349,7 +347,7 @@ export function FarmManagement() {
                   No suggestions yet
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Click the "Generate" button to get your recommendations.
+                  Select a farm and fill out its details, then click "Generate" to get recommendations.
                 </p>
               </div>
             )}
@@ -369,7 +367,7 @@ export function FarmManagement() {
                             <h4 className="font-semibold">Optimal Conditions (Placeholder)</h4>
                             <p className="text-sm text-muted-foreground">Temperature: 60-75°F, Rainfall: 25-30 inches</p>
                             <h4 className="font-semibold">Yield Potential (Placeholder)</h4>
-                            <p className="text-sm text-muted-foreground">High (approx. 180 bushels/acre)</p>
+                            <p className="text-sm text-muted-foreground">High (approx. 180 quintals/acre)</p>
                              <h4 className="font-semibold">Market Trends (Placeholder)</h4>
                             <p className="text-sm text-muted-foreground">Stable demand with potential for price increase due to organic trends.</p>
                         </div>
@@ -385,3 +383,5 @@ export function FarmManagement() {
     </div>
   );
 }
+
+    
