@@ -48,6 +48,8 @@ import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/hooks/use-language';
 import { Label } from '@/components/ui/label';
 import { Autocomplete } from '@/components/ui/autocomplete';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Farm name must be at least 2 characters.'),
@@ -145,18 +147,46 @@ export function FarmManagement() {
   const handleDownload = () => {
     if (!suggestions) return;
 
-    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(
-      JSON.stringify(suggestions, null, 2)
-    )}`;
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute('href', dataStr);
-    downloadAnchorNode.setAttribute(
-      'download',
-      `crop_recommendations_${selectedFarm.name.replace(/\s+/g, '_').toLowerCase()}.json`
-    );
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+    const doc = new jsPDF();
+    
+    // Add header
+    doc.setFontSize(20);
+    doc.text('AI Crop Recommendations', 14, 22);
+    doc.setFontSize(12);
+    doc.text(`For Farm: ${selectedFarm.name}`, 14, 30);
+    doc.text(`Location: ${selectedFarm.location}`, 14, 36);
+    
+    // Add Reasoning
+    doc.setFontSize(14);
+    doc.text('AI Reasoning', 14, 50);
+    const reasoningLines = doc.splitTextToSize(suggestions.reasoning, 180);
+    doc.setFontSize(10);
+    doc.text(reasoningLines, 14, 58);
+    
+    // Add Crop Suggestions Table
+    const tableColumn = ["Crop", "Yield Forecast", "Profit Margin (%)", "Sustainability Score"];
+    const tableRows: (string|number)[][] = [];
+
+    suggestions.cropSuggestions.forEach(suggestion => {
+      const suggestionData = [
+        suggestion.cropName,
+        suggestion.yieldForecast,
+        suggestion.profitMargin.toFixed(1),
+        suggestion.sustainabilityScore,
+      ];
+      tableRows.push(suggestionData);
+    });
+
+    (doc as any).autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 75,
+      headStyles: { fillColor: [41, 128, 185] },
+      margin: { top: 75 }
+    });
+
+    const fileName = `crop_recommendations_${selectedFarm.name.replace(/\s+/g, '_').toLowerCase()}.pdf`;
+    doc.save(fileName);
   };
 
   return (
@@ -406,7 +436,7 @@ export function FarmManagement() {
               {suggestions && (
                 <Button variant="outline" size="icon" onClick={handleDownload}>
                   <Download className="h-4 w-4" />
-                  <span className="sr-only">Download Analysis</span>
+                  <span className="sr-only">Download Analysis as PDF</span>
                 </Button>
               )}
             </div>
