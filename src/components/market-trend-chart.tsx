@@ -8,16 +8,6 @@ import {
 } from '@/components/ui/chart';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
-const chartData = [
-  { date: 'Jan', price: 10.5 },
-  { date: 'Feb', price: 10.8 },
-  { date: 'Mar', price: 11.2 },
-  { date: 'Apr', price: 11.1 },
-  { date: 'May', price: 11.5 },
-  { date: 'Jun', price: 11.8 },
-  { date: 'Jul', price: 11.75 },
-];
-
 const chartConfig = {
   price: {
     label: 'Price',
@@ -25,12 +15,16 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function MarketTrendChart() {
+type MarketTrendChartProps = {
+    data: { date: string; price: number }[];
+}
+
+export function MarketTrendChart({ data }: MarketTrendChartProps) {
   return (
     <ChartContainer config={chartConfig} className="h-[300px] w-full">
       <AreaChart
         accessibilityLayer
-        data={chartData}
+        data={data}
         margin={{
           top: 5,
           right: 20,

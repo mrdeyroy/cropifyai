@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -16,8 +19,12 @@ import {
 import { marketPrices } from "@/lib/data";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { MarketTrendChart } from "@/components/market-trend-chart";
+import type { MarketPrice } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 export default function MarketWatchPage() {
+  const [selectedCrop, setSelectedCrop] = useState<MarketPrice>(marketPrices[1]);
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -35,7 +42,7 @@ export default function MarketWatchPage() {
             <CardHeader>
               <CardTitle>Commodity Prices</CardTitle>
               <CardDescription>
-                Live prices from agricultural markets.
+                Live prices from agricultural markets. Click a row to see the trend.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -50,7 +57,11 @@ export default function MarketWatchPage() {
                 </TableHeader>
                 <TableBody>
                   {marketPrices.map((item) => (
-                    <TableRow key={item.crop}>
+                    <TableRow 
+                        key={item.crop} 
+                        onClick={() => setSelectedCrop(item)}
+                        className={cn("cursor-pointer", selectedCrop.crop === item.crop && "bg-muted/50")}
+                    >
                       <TableCell className="font-medium">{item.crop}</TableCell>
                       <TableCell className="text-right font-mono">
                         ₹{item.price.toFixed(2)}
@@ -82,11 +93,11 @@ export default function MarketWatchPage() {
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle>Soybean Price Trend</CardTitle>
+              <CardTitle>{selectedCrop.crop} Price Trend</CardTitle>
               <CardDescription>Last 6 months price history.</CardDescription>
             </CardHeader>
             <CardContent>
-              <MarketTrendChart />
+              <MarketTrendChart data={selectedCrop.history} />
             </CardContent>
           </Card>
         </div>

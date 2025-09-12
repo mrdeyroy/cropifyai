@@ -34,6 +34,7 @@ export type MarketPrice = {
   price: number;
   change: number;
   lastUpdated: string;
+  history: { date: string; price: number }[];
 };
 
 export type DiseaseIdentification = {
