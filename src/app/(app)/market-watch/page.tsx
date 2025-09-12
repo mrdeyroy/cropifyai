@@ -107,9 +107,7 @@ export default function MarketWatchPage() {
           <Card>
             <CardHeader>
               <CardTitle>
-                {t('marketWatchPage.trendTitle', {
-                  cropName: selectedCrop.crop,
-                })}
+                {t('marketWatchPage.trendTitle', { cropName: selectedCrop.crop })}
               </CardTitle>
               <CardDescription>
                 {t('marketWatchPage.trendDescription')}
