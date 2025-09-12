@@ -17,12 +17,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Globe, LogOut, User as UserIcon } from 'lucide-react';
-import { user } from '@/lib/data';
 import { LanguageSelector } from '@/components/language-selector';
 import { useLanguage } from '@/hooks/use-language';
+import { useUser } from '@/hooks/use-user';
+import Link from 'next/link';
 
 export function UserNav() {
   const { t } = useLanguage();
+  const { user } = useUser();
   const [isLanguageSelectorOpen, setLanguageSelectorOpen] = useState(false);
 
   const getInitials = (name: string) => {
@@ -55,9 +57,11 @@ export function UserNav() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <UserIcon className="mr-2 h-4 w-4" />
-              <span>{t('userNav.profile')}</span>
+            <DropdownMenuItem asChild>
+              <Link href="/settings">
+                <UserIcon className="mr-2 h-4 w-4" />
+                <span>{t('userNav.profile')}</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setLanguageSelectorOpen(true)}>
               <Globe className="mr-2 h-4 w-4" />

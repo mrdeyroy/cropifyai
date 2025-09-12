@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { user } from '@/lib/data';
 import { useLanguage } from '@/hooks/use-language';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,6 +32,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/hooks/use-user';
+import { useEffect } from 'react';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -41,6 +42,7 @@ const profileSchema = z.object({
 
 export default function SettingsPage() {
   const { t, language, setLanguage } = useLanguage();
+  const { user, setUser } = useUser();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof profileSchema>>({
@@ -51,9 +53,15 @@ export default function SettingsPage() {
     },
   });
 
+  useEffect(() => {
+    form.reset({
+      name: user.name,
+      email: user.email,
+    });
+  }, [user, form]);
+
   const onProfileSubmit = (values: z.infer<typeof profileSchema>) => {
-    // Here you would typically update the user data on your backend
-    console.log('Profile updated:', values);
+    setUser({ ...user, ...values });
     toast({
       title: 'Profile Saved',
       description: 'Your changes have been saved successfully.',
