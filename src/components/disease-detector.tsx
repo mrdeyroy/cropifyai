@@ -21,7 +21,6 @@ import { Stethoscope, Upload, Loader2, Bot, Pill, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { identifyCropDisease } from '@/ai/flows/identify-crop-disease';
 import type { DiseaseIdentification as DiseaseIDResult } from '@/lib/types'; // Renamed to avoid conflict
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 // Helper to convert file to data URI
 const toDataUri = (file: File): Promise<string> =>
@@ -62,12 +61,8 @@ export function DiseaseDetector() {
 
     startAnalyzingTransition(async () => {
       try {
-        // In a real app, you would use the uploaded image data URI.
-        // For this demo, we'll use a placeholder to call the Genkit flow.
-        const placeholderImage = PlaceHolderImages.find(p => p.id === 'diseased-leaf');
-        
         const aiResult = await identifyCropDisease({
-            photoDataUri: placeholderImage?.imageUrl || imagePreview,
+            photoDataUri: imagePreview,
         });
 
         // Mock treatment/prevention data since the AI doesn't provide it
