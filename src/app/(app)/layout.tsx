@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { LanguageProvider } from '@/hooks/use-language';
 import { AuthProvider } from '@/hooks/use-auth';
+import { FarmerChatbot } from '@/components/farmer-chatbot';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -52,6 +53,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <main className="flex-1 flex flex-col p-4 md:p-6 lg:p-8">
               {children}
             </main>
+            <FarmerChatbot />
           </SidebarInset>
         </SidebarProvider>
       </LanguageProvider>

@@ -20,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Stethoscope, Loader2, Bot, Pill, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { identifyCropDisease } from '@/ai/flows/identify-crop-disease';
-import type { DiseaseIdentification as DiseaseIDResult } from '@/lib/types';
+import type { DiseaseIdentification } from '@/lib/types';
 import { useLanguage } from '@/hooks/use-language';
 
 const toDataUri = (file: File): Promise<string> =>
@@ -33,7 +33,7 @@ const toDataUri = (file: File): Promise<string> =>
 
 export function DiseaseDetector() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [result, setResult] = useState<DiseaseIDResult[] | null>(null);
+  const [result, setResult] = useState<DiseaseIdentification[] | null>(null);
   const [isAnalyzing, startAnalyzingTransition] = useTransition();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -62,23 +62,7 @@ export function DiseaseDetector() {
           photoDataUri: imagePreview,
         });
 
-        const mockData: DiseaseIDResult[] = aiResult.diseaseIdentification.map(
-          (d) => ({
-            ...d,
-            treatment: [
-              'Apply fungicide XYZ every 7-10 days.',
-              'Remove and destroy infected leaves.',
-              'Ensure proper air circulation.',
-            ],
-            prevention: [
-              'Plant disease-resistant varieties.',
-              'Water at the base of the plant to avoid wet foliage.',
-              'Use mulch to prevent soil splash.',
-            ],
-          })
-        );
-
-        setResult(mockData);
+        setResult(aiResult.diseaseIdentification);
       } catch (error) {
         console.error('Failed to analyze disease:', error);
         toast({

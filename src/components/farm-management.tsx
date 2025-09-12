@@ -43,7 +43,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateCropSuggestions } from '@/ai/flows/generate-crop-suggestions';
-import type { GenerateCropSuggestionsOutput } from '@/ai/flows/generate-crop-suggestions';
+import type { GenerateCropSuggestionsOutput } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/hooks/use-language';
 import { Label } from '@/components/ui/label';
