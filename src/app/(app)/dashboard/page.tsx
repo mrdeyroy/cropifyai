@@ -98,7 +98,7 @@ export default function DashboardPage() {
                 {marketPrices.slice(0, 3).map((item) => (
                   <TableRow key={item.crop}>
                     <TableCell className="font-medium">{item.crop}</TableCell>
-                    <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{item.price.toFixed(2)}</TableCell>
                     <TableCell
                       className={`flex items-center justify-end gap-1 ${
                         item.change > 0

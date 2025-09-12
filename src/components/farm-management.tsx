@@ -113,7 +113,7 @@ export function FarmManagement() {
           marketDemand: "High demand for organic produce and grains.", // Placeholder
           pastCropRotationData: "Corn -> Soybeans -> Wheat", // Placeholder
           weatherForecast: "Mild spring, hot summer expected.", // Placeholder
-          marketPrices: "Corn: $4.50/bushel, Soybeans: $11.75/bushel", // Placeholder
+          marketPrices: "Corn: ₹350/bushel, Soybeans: ₹950/bushel", // Placeholder
         });
         setSuggestions(result);
       } catch (error) {

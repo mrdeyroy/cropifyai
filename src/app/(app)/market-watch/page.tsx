@@ -43,7 +43,7 @@ export default function MarketWatchPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Crop</TableHead>
-                    <TableHead className="text-right">Price (USD)</TableHead>
+                    <TableHead className="text-right">Price (INR)</TableHead>
                     <TableHead className="text-right">Change</TableHead>
                     <TableHead className="text-right">Last Updated</TableHead>
                   </TableRow>
@@ -53,7 +53,7 @@ export default function MarketWatchPage() {
                     <TableRow key={item.crop}>
                       <TableCell className="font-medium">{item.crop}</TableCell>
                       <TableCell className="text-right font-mono">
-                        ${item.price.toFixed(2)}
+                        ₹{item.price.toFixed(2)}
                       </TableCell>
                       <TableCell
                         className={`text-right font-mono ${
