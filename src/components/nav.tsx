@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import React from 'react';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
@@ -36,8 +37,10 @@ export function Nav() {
               isActive={pathname === item.href}
               tooltip={item.label}
             >
-              <item.icon />
-              <span>{item.label}</span>
+              <React.Fragment>
+                <item.icon />
+                <span>{item.label}</span>
+              </React.Fragment>
             </SidebarMenuButton>
           </Link>
         </SidebarMenuItem>

@@ -42,6 +42,22 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
+    
+    // If asChild is true and the child is a Fragment, we need to wrap it in a div
+    if (asChild && React.isValidElement(props.children) && props.children.type === React.Fragment) {
+      return (
+        <Comp
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          {...props}
+        >
+          <div className='flex items-center gap-2'>
+            {props.children}
+          </div>
+        </Comp>
+      )
+    }
+
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
