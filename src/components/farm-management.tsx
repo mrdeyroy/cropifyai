@@ -23,18 +23,18 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Sparkles, Loader2, Lightbulb, Mic, Bot, MapPin } from 'lucide-react';
+import { Sparkles, Loader2, Lightbulb, Bot, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateCropSuggestions } from '@/ai/flows/generate-crop-suggestions';
-import { transcribeVoiceInput } from '@/ai/flows/voice-input-farm-data';
 import type { GenerateCropSuggestionsOutput } from '@/ai/flows/generate-crop-suggestions';
 import { cn } from '@/lib/utils';
 
@@ -56,7 +56,6 @@ export function FarmManagement() {
   );
   const [suggestions, setSuggestions] = useState<GenerateCropSuggestionsOutput | null>(null);
   const [isGenerating, startGeneratingTransition] = useTransition();
-  const [isTranscribing, startTranscribingTransition] = useTransition();
   const { toast } = useToast();
 
   const selectedFarm = farms.find((f) => f.id === selectedFarmId) || farms[0];
@@ -116,35 +115,6 @@ export function FarmManagement() {
           variant: 'destructive',
           title: 'Error',
           description: 'Could not generate crop suggestions. Please try again.',
-        });
-      }
-    });
-  };
-
-  const handleVoiceInput = (fieldName: keyof z.infer<typeof formSchema>) => {
-    startTranscribingTransition(async () => {
-      toast({
-        title: 'Listening...',
-        description: 'Please describe the soil type. (Simulating voice input)',
-      });
-      try {
-        const result = await transcribeVoiceInput({
-            // This is a placeholder for actual audio data
-            audioDataUri: "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=",
-        });
-        // In a real app, the result would be more dynamic. Here we hardcode a plausible result for the demo.
-        const simulatedTranscription = "Silty Clay";
-        form.setValue(fieldName, simulatedTranscription);
-        toast({
-          title: 'Transcription complete',
-          description: `Set ${fieldName} to "${simulatedTranscription}"`,
-        });
-      } catch (error) {
-        console.error('Transcription failed:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: 'Could not process voice input.',
         });
       }
     });
@@ -216,22 +186,21 @@ export function FarmManagement() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Soil Type</FormLabel>
-                        <div className="relative">
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                            <Input placeholder="e.g., Loam" {...field} />
+                                <SelectTrigger>
+                                <SelectValue placeholder="Select a soil type" />
+                                </SelectTrigger>
                             </FormControl>
-                            <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                            onClick={() => handleVoiceInput('soilType')}
-                            disabled={isTranscribing}
-                            >
-                            {isTranscribing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
-                            <span className="sr-only">Use voice input</span>
-                            </Button>
-                        </div>
+                            <SelectContent>
+                                <SelectItem value="Loam">Loam</SelectItem>
+                                <SelectItem value="Silty Clay">Silty Clay</SelectItem>
+                                <SelectItem value="Sandy Loam">Sandy Loam</SelectItem>
+                                <SelectItem value="Clay">Clay</SelectItem>
+                                <SelectItem value="Sand">Sand</SelectItem>
+                                <SelectItem value="Peat">Peat</SelectItem>
+                            </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -358,23 +327,29 @@ export function FarmManagement() {
                   <AlertTitle className="font-semibold">Reasoning</AlertTitle>
                   <AlertDescription>{suggestions.reasoning}</AlertDescription>
                 </Alert>
-                <Accordion type="single" collapsible className="w-full">
+                <div className="grid gap-6 md:grid-cols-2">
                   {suggestions.cropSuggestions.map((crop, index) => (
-                    <AccordionItem value={`item-${index}`} key={index}>
-                      <AccordionTrigger className="text-lg font-medium">{crop}</AccordionTrigger>
-                      <AccordionContent>
-                        <div className="space-y-4 p-2">
+                    <Card key={index}>
+                      <CardHeader>
+                        <CardTitle>{crop}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                         <div>
                             <h4 className="font-semibold">Optimal Conditions (Placeholder)</h4>
                             <p className="text-sm text-muted-foreground">Temperature: 60-75°F, Rainfall: 25-30 inches</p>
+                         </div>
+                         <div>
                             <h4 className="font-semibold">Yield Potential (Placeholder)</h4>
                             <p className="text-sm text-muted-foreground">High (approx. 180 quintals/acre)</p>
+                         </div>
+                         <div>
                              <h4 className="font-semibold">Market Trends (Placeholder)</h4>
                             <p className="text-sm text-muted-foreground">Stable demand with potential for price increase due to organic trends.</p>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
+                         </div>
+                      </CardContent>
+                    </Card>
                   ))}
-                </Accordion>
+                </div>
               </div>
             )}
           </CardContent>
@@ -383,5 +358,3 @@ export function FarmManagement() {
     </div>
   );
 }
-
-    
