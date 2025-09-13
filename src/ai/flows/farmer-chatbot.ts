@@ -13,6 +13,24 @@ import {
   FarmerChatbotOutput,
   FarmerChatbotOutputSchema,
 } from '@/lib/types';
+import { getWeather } from '@/services/weather';
+import type { WeatherData } from '@/services/weather';
+import { z } from 'zod';
+
+const getCurrentWeather = ai.defineTool(
+  {
+    name: 'getCurrentWeather',
+    description: 'Get the current weather conditions for a specific location.',
+    inputSchema: z.object({
+      location: z.string().describe('The city and state, e.g., "Nashik, Maharashtra" for which to get the weather.'),
+    }),
+    outputSchema: z.custom<WeatherData>(),
+  },
+  async ({ location }) => {
+    return await getWeather(location);
+  }
+);
+
 
 export async function farmerChatbot(
   input: FarmerChatbotInput
@@ -24,7 +42,10 @@ const prompt = ai.definePrompt({
   name: 'farmerChatbotPrompt',
   input: { schema: FarmerChatbotInputSchema },
   output: { schema: FarmerChatbotOutputSchema },
+  tools: [getCurrentWeather],
   prompt: `You are AgriBot, an expert AI assistant for farmers. Your knowledge covers all aspects of agriculture, including crop management, soil science, pest and disease control, market trends, sustainable farming practices, and weather patterns.
+
+  If the user asks about the weather, use the 'getCurrentWeather' tool to provide real-time information.
 
   Your tone should be helpful, clear, and encouraging. Provide practical, actionable advice. If a question is outside the scope of agriculture, politely state that you are an agricultural assistant and cannot answer it.
 
