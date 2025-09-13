@@ -35,7 +35,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
-import Script from 'next/script';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -104,10 +103,6 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <Script
-        src="https://cdn.tailwindcss.com"
-        strategy="beforeInteractive"
-      />
       <div>
         <h1 className="font-headline text-3xl font-bold tracking-tight">
           {t('settingsPage.title')}
