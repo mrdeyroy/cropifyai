@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   ArrowDown,
@@ -26,6 +25,7 @@ import { marketPrices, indianCities } from '@/lib/data';
 import { YieldChart } from '@/components/yield-chart';
 import { useLanguage } from '@/hooks/use-language';
 import { useState, useEffect } from 'react';
+import { Autocomplete } from '@/components/ui/autocomplete';
 
 type WeatherData = {
   temp: number;
@@ -79,19 +79,24 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="location-search">{t('farmManagement.locationLabel')}</Label>
-              <Input
-                id="location-search"
+              <Label htmlFor="location-search">
+                {t('farmManagement.locationLabel')}
+              </Label>
+              <Autocomplete
+                options={[...new Set(indianCities)].map((city) => ({
+                  value: city,
+                  label: city,
+                }))}
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                list="locations-datalist"
+                onSelect={(currentValue) => {
+                  if (currentValue) {
+                    setLocation(currentValue);
+                  }
+                }}
                 placeholder={t('farmManagement.locationPlaceholder')}
+                emptyMessage="No locations found."
+                searchPlaceholder="Search locations..."
               />
-              <datalist id="locations-datalist">
-                {[...new Set(indianCities)].map((loc) => (
-                  <option key={loc} value={loc} />
-                ))}
-              </datalist>
             </div>
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="flex items-center gap-4">
