@@ -130,7 +130,6 @@ export function FarmManagement() {
           marketDemand: 'High demand for organic produce and grains.',
           pastCropRotationData: 'Corn -> Soybeans -> Wheat',
           weatherForecast: 'Mild spring, hot summer expected.',
-          marketPrices: 'Corn: ₹1400, Soybeans: ₹3500',
         });
         setSuggestions(result);
       } catch (error) {

@@ -85,7 +85,6 @@ export const GenerateCropSuggestionsInputSchema = z.object({
   marketDemand: z.string().describe('Information about current market demands for crops.'),
   pastCropRotationData: z.string().describe('Information about past crop rotations on the farm.'),
   weatherForecast: z.string().describe('Weather forecast for the location.'),
-  marketPrices: z.string().describe('Current market prices for various crops.'),
 });
 
 export type GenerateCropSuggestionsInput = z.infer<
