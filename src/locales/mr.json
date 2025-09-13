@@ -22,7 +22,7 @@
         "title": "डॅशबोर्ड",
         "description": "पुन्हा स्वागत आहे, येथे तुमच्या शेताचे विहंगावलोकन आहे.",
         "weatherTitle": "हवामान विहंगावलोकन",
-        "weatherDescription": "नाशिक, महाराष्ट्र येथील सद्यस्थिती",
+        "weatherDescription": "{location} येथील सद्यस्थिती",
         "sunny": "उन्हाळा",
         "humidity": "आर्द्रता",
         "wind": "वारा",

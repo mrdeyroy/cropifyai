@@ -22,7 +22,7 @@
         "title": "डैशबोर्ड",
         "description": "वापस स्वागत है, यहाँ आपके खेत का अवलोकन है।",
         "weatherTitle": "मौसम का अवलोकन",
-        "weatherDescription": "नासिक, महाराष्ट्र में वर्तमान स्थिति",
+        "weatherDescription": "{location} में वर्तमान स्थिति",
         "sunny": "धूप",
         "humidity": "नमी",
         "wind": "हवा",

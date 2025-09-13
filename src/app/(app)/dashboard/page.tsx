@@ -9,6 +9,8 @@ import {
 } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   ArrowDown,
   ArrowUp,
@@ -20,12 +22,45 @@ import {
   Wind,
 } from 'lucide-react';
 import Link from 'next/link';
-import { marketPrices } from '@/lib/data';
+import { marketPrices, indianCities } from '@/lib/data';
 import { YieldChart } from '@/components/yield-chart';
 import { useLanguage } from '@/hooks/use-language';
+import { useState, useEffect } from 'react';
+
+type WeatherData = {
+  temp: number;
+  condition: string;
+  humidity: number;
+  wind: number;
+  uv: string;
+};
+
+// Mock function to generate weather data based on location
+const getMockWeather = (location: string): WeatherData => {
+  // Use a simple hash to get consistent "random" data for a given location
+  const hash = location
+    .split('')
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return {
+    temp: 25 + (hash % 10), // Temp between 25-34
+    condition: ['Sunny', 'Partly Cloudy', 'Clear'][hash % 3],
+    humidity: 60 + (hash % 15), // Humidity between 60-75
+    wind: 8 + (hash % 10), // Wind between 8-17 km/h
+    uv: ['High', 'Very High', 'Moderate'][hash % 3],
+  };
+};
 
 export default function DashboardPage() {
   const { t } = useLanguage();
+  const [location, setLocation] = useState('Nashik, Maharashtra');
+  const [weatherData, setWeatherData] = useState<WeatherData>(
+    getMockWeather(location)
+  );
+
+  useEffect(() => {
+    setWeatherData(getMockWeather(location));
+  }, [location]);
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -39,33 +74,54 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>{t('dashboard.weatherTitle')}</CardTitle>
             <CardDescription>
-              {t('dashboard.weatherDescription')}
+              {t('dashboard.weatherDescription', { location: location })}
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4">
-            <div className="flex items-center gap-4">
-              <Sun className="h-8 w-8 text-yellow-500" />
-              <div>
-                <div className="text-2xl font-bold">28°C</div>
-                <div className="text-sm text-muted-foreground">
-                  {t('dashboard.sunny')}
+          <CardContent className="space-y-4">
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="location-search">{t('farmManagement.locationLabel')}</Label>
+              <Input
+                id="location-search"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                list="locations-datalist"
+                placeholder={t('farmManagement.locationPlaceholder')}
+              />
+              <datalist id="locations-datalist">
+                {[...new Set(indianCities)].map((loc) => (
+                  <option key={loc} value={loc} />
+                ))}
+              </datalist>
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="flex items-center gap-4">
+                <Sun className="h-8 w-8 text-yellow-500" />
+                <div>
+                  <div className="text-2xl font-bold">{weatherData.temp}°C</div>
+                  <div className="text-sm text-muted-foreground">
+                    {weatherData.condition}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col gap-2 text-sm">
-              <div className="flex items-center gap-2">
-                <Droplets className="h-4 w-4 text-blue-400" />
-                <span>{t('dashboard.humidity')}: 65%</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Wind className="h-4 w-4 text-gray-400" />
-                <span>{t('dashboard.wind')}: 10 km/h</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Cloud className="h-4 w-4 text-gray-300" />
-                <span>
-                  {t('dashboard.uvIndex')}: {t('dashboard.uvIndexValue')}
-                </span>
+              <div className="flex flex-col gap-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <Droplets className="h-4 w-4 text-blue-400" />
+                  <span>
+                    {t('dashboard.humidity')}: {weatherData.humidity}%
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Wind className="h-4 w-4 text-gray-400" />
+                  <span>
+                    {t('dashboard.wind')}: {weatherData.wind} km/h
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Cloud className="h-4 w-4 text-gray-300" />
+                  <span>
+                    {t('dashboard.uvIndex')}: {weatherData.uv}
+                  </span>
+                </div>
               </div>
             </div>
           </CardContent>

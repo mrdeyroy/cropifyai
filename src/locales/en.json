@@ -22,7 +22,7 @@
         "title": "Dashboard",
         "description": "Welcome back, here's your farm's overview.",
         "weatherTitle": "Weather Overview",
-        "weatherDescription": "Current conditions in Nashik, Maharashtra",
+        "weatherDescription": "Current conditions in {location}",
         "sunny": "Sunny",
         "humidity": "Humidity",
         "wind": "Wind",
