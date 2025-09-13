@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithRedirect, GoogleAuthProvider, getRedirectResult } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import {
@@ -56,6 +56,28 @@ export default function LoginPage() {
     defaultValues: { email: '', password: '' },
   });
 
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      setIsGoogleLoading(true);
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          router.push('/dashboard');
+        }
+      } catch (error: any) {
+        toast({
+          variant: 'destructive',
+          title: 'Google Sign-in Failed',
+          description: error.message,
+        });
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    };
+    handleRedirectResult();
+  }, [router, toast]);
+
+
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
     try {
@@ -76,15 +98,13 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-      router.push('/dashboard');
+      await signInWithRedirect(auth, provider);
     } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Google Sign-in Failed',
         description: error.message,
       });
-    } finally {
       setIsGoogleLoading(false);
     }
   }
