@@ -11,6 +11,7 @@ import {
   AreaChart,
   Settings,
   Stethoscope,
+  Bell,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -30,6 +31,7 @@ export function Nav() {
       icon: Stethoscope,
     },
     { href: '/market-watch', label: t('nav.marketWatch'), icon: AreaChart },
+    { href: '/notifications', label: t('nav.notifications'), icon: Bell },
     { href: '/settings', label: t('nav.settings'), icon: Settings },
   ];
 

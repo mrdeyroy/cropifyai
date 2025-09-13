@@ -15,6 +15,7 @@
         "myFarms": "My Farms",
         "diseaseDetection": "Disease Detection",
         "marketWatch": "Market Watch",
+        "notifications": "Notifications",
         "settings": "Settings"
     },
     "dashboard": {
@@ -102,6 +103,15 @@
         "lastUpdatedHeader": "Last Updated",
         "trendTitle": "{cropName} Price Trend",
         "trendDescription": "Last 6 months price history."
+    },
+    "notificationsPage": {
+        "title": "Notifications",
+        "description": "View recent alerts and updates.",
+        "recentAlerts": "Recent Alerts",
+        "alertsDescription": "Here are your latest notifications.",
+        "allTab": "All",
+        "priceTab": "Market Prices",
+        "weatherTab": "Weather"
     },
     "settingsPage": {
         "title": "Settings",

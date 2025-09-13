@@ -15,6 +15,7 @@
         "myFarms": "माझी शेती",
         "diseaseDetection": "रोग ओळख",
         "marketWatch": "बाजार निरीक्षण",
+        "notifications": "सूचना",
         "settings": "सेटिंग्ज"
     },
     "dashboard": {
@@ -102,6 +103,15 @@
         "lastUpdatedHeader": "शेवटचे अपडेट",
         "trendTitle": "{cropName} किंमत ट्रेंड",
         "trendDescription": "मागील ६ महिन्यांचा किंमत इतिहास."
+    },
+    "notificationsPage": {
+        "title": "सूचना",
+        "description": "अलीकडील सूचना आणि अद्यतने पहा.",
+        "recentAlerts": "अलीकडील सूचना",
+        "alertsDescription": "येथे तुमच्या नवीनतम सूचना आहेत.",
+        "allTab": "सर्व",
+        "priceTab": "बाजारभाव",
+        "weatherTab": "हवामान"
     },
     "settingsPage": {
         "title": "सेटिंग्ज",

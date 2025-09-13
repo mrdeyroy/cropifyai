@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Globe, LogOut, User as UserIcon } from 'lucide-react';
+import { Globe, LogOut, User as UserIcon, Bell } from 'lucide-react';
 import { LanguageSelector } from '@/components/language-selector';
 import { useLanguage } from '@/hooks/use-language';
 import { useAuth } from '@/hooks/use-auth';
@@ -44,44 +44,52 @@ export function UserNav() {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`} alt={userName} />
-              <AvatarFallback>{getInitials(userName)}</AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{userName}</p>
-              <p className="text-xs leading-none text-muted-foreground">
-                {userEmail}
-              </p>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem asChild>
-              <Link href="/settings">
-                <UserIcon className="mr-2 h-4 w-4" />
-                <span>{t('userNav.profile')}</span>
-              </Link>
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/notifications">
+            <Bell className="h-5 w-5" />
+            <span className="sr-only">Notifications</span>
+          </Link>
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Avatar className="h-9 w-9">
+                <AvatarImage src={user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`} alt={userName} />
+                <AvatarFallback>{getInitials(userName)}</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">{userName}</p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {userEmail}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link href="/settings">
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  <span>{t('userNav.profile')}</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setLanguageSelectorOpen(true)}>
+                <Globe className="mr-2 h-4 w-4" />
+                <span>{t('userNav.language')}</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={logout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>{t('userNav.logout')}</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setLanguageSelectorOpen(true)}>
-              <Globe className="mr-2 h-4 w-4" />
-              <span>{t('userNav.language')}</span>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={logout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>{t('userNav.logout')}</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       <LanguageSelector isOpen={isLanguageSelectorOpen} onOpenChange={setLanguageSelectorOpen} />
     </>
   );
