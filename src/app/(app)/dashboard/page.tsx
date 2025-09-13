@@ -19,6 +19,7 @@ import {
   Stethoscope,
   Sun,
   Wind,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { marketPrices, indianCities } from '@/lib/data';
@@ -26,41 +27,39 @@ import { YieldChart } from '@/components/yield-chart';
 import { useLanguage } from '@/hooks/use-language';
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
+import { getWeather } from '@/services/weather';
+import type { WeatherData } from '@/services/weather';
+import { useToast } from '@/hooks/use-toast';
 
-
-type WeatherData = {
-  temp: number;
-  condition: string;
-  humidity: number;
-  wind: number;
-  uv: string;
-};
-
-// Mock function to generate weather data based on location
-const getMockWeather = (location: string): WeatherData => {
-  // Use a simple hash to get consistent "random" data for a given location
-  const hash = location
-    .split('')
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return {
-    temp: 25 + (hash % 10), // Temp between 25-34
-    condition: ['Sunny', 'Partly Cloudy', 'Clear'][hash % 3],
-    humidity: 60 + (hash % 15), // Humidity between 60-75
-    wind: 8 + (hash % 10), // Wind between 8-17 km/h
-    uv: ['High', 'Very High', 'Moderate'][hash % 3],
-  };
-};
 
 export default function DashboardPage() {
   const { t } = useLanguage();
   const [location, setLocation] = useState('Nashik, Maharashtra');
-  const [weatherData, setWeatherData] = useState<WeatherData>(
-    getMockWeather(location)
-  );
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [isWeatherLoading, setIsWeatherLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    setWeatherData(getMockWeather(location));
-  }, [location]);
+    const fetchWeather = async () => {
+      setIsWeatherLoading(true);
+      try {
+        const data = await getWeather(location);
+        setWeatherData(data);
+      } catch (error) {
+        console.error("Failed to fetch weather data", error);
+        toast({
+            variant: 'destructive',
+            title: 'Failed to load weather',
+            description: 'Could not fetch weather data for the selected location.'
+        })
+        setWeatherData(null);
+      } finally {
+        setIsWeatherLoading(false);
+      }
+    };
+
+    fetchWeather();
+  }, [location, toast]);
   
   const handleLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newLocation = event.target.value;
@@ -95,7 +94,14 @@ export default function DashboardPage() {
                 type="text"
                 list="dashboard-locations"
                 defaultValue={location}
-                onChange={handleLocationChange}
+                onBlur={handleLocationChange}
+                 onChange={(e) => {
+                  // This is a workaround to allow datalist selection to be detected
+                  // We check if the input value is a valid city before updating state on blur
+                  if (indianCities.includes(e.target.value)) {
+                    setLocation(e.target.value);
+                  }
+                }}
                 placeholder={t('farmManagement.locationPlaceholder')}
               />
               <datalist id="dashboard-locations">
@@ -104,37 +110,47 @@ export default function DashboardPage() {
                 ))}
               </datalist>
             </div>
-            <div className="grid grid-cols-2 gap-4 pt-2">
-              <div className="flex items-center gap-4">
-                <Sun className="h-8 w-8 text-yellow-500" />
-                <div>
-                  <div className="text-2xl font-bold">{weatherData.temp}°C</div>
-                  <div className="text-sm text-muted-foreground">
-                    {weatherData.condition}
+            {isWeatherLoading ? (
+              <div className="flex justify-center items-center h-24">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : weatherData ? (
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="flex items-center gap-4">
+                  <Sun className="h-8 w-8 text-yellow-500" />
+                  <div>
+                    <div className="text-2xl font-bold">{weatherData.temp}°C</div>
+                    <div className="text-sm text-muted-foreground capitalize">
+                      {weatherData.condition}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Droplets className="h-4 w-4 text-blue-400" />
+                    <span>
+                      {t('dashboard.humidity')}: {weatherData.humidity}%
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Wind className="h-4 w-4 text-gray-400" />
+                    <span>
+                      {t('dashboard.wind')}: {weatherData.wind} km/h
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Cloud className="h-4 w-4 text-gray-300" />
+                    <span>
+                      {t('dashboard.uvIndex')}: {weatherData.uv}
+                    </span>
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <Droplets className="h-4 w-4 text-blue-400" />
-                  <span>
-                    {t('dashboard.humidity')}: {weatherData.humidity}%
-                  </span>
+            ) : (
+                <div className="text-center text-muted-foreground py-8">
+                    <p>Could not load weather data.</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Wind className="h-4 w-4 text-gray-400" />
-                  <span>
-                    {t('dashboard.wind')}: {weatherData.wind} km/h
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Cloud className="h-4 w-4 text-gray-300" />
-                  <span>
-                    {t('dashboard.uvIndex')}: {weatherData.uv}
-                  </span>
-                </div>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
         <Card>
