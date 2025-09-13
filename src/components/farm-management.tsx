@@ -247,7 +247,7 @@ export function FarmManagement() {
                     control={form.control}
                     name="location"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
+                      <FormItem>
                         <FormLabel>
                           {t('farmManagement.locationLabel')}
                         </FormLabel>
