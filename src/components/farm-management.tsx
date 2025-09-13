@@ -122,14 +122,13 @@ export function FarmManagement() {
         const result = await generateCropSuggestions({
           soilType: values.soilType,
           location: values.location,
-          weatherDataLink: 'https://example.com/weather-api',
+          weatherDataLink: 'https://example.com/weather-api', // Placeholder
           pH: values.ph,
           moistureContent: `${values.moisture}%`,
           temperature: values.temperature,
           nutrientContent: `N:${values.nitrogen}, P:${values.phosphorus}, K:${values.potassium} ppm`,
-          marketDemand: 'High demand for organic produce and grains.',
-          pastCropRotationData: 'Corn -> Soybeans -> Wheat',
-          weatherForecast: 'Mild spring, hot summer expected.',
+          pastCropRotationData: 'Corn -> Soybeans -> Wheat', // Placeholder
+          weatherForecast: 'Mild spring, hot summer expected.', // Placeholder
         });
         setSuggestions(result);
       } catch (error) {

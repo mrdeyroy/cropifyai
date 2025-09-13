@@ -82,7 +82,6 @@ export const GenerateCropSuggestionsInputSchema = z.object({
   moistureContent: z.string().describe('The moisture content of the soil.'),
   nutrientContent: z.string().describe('The nutrient content of the soil (e.g., NPK values).'),
   temperature: z.number().describe('The average temperature in Celsius.'),
-  marketDemand: z.string().describe('Information about current market demands for crops.'),
   pastCropRotationData: z.string().describe('Information about past crop rotations on the farm.'),
   weatherForecast: z.string().describe('Weather forecast for the location.'),
 });

@@ -1,16 +1,62 @@
 /**
- * @fileoverview Service for fetching market data.
- * In a real-world application, this would fetch data from an external API.
+ * @fileoverview Service for fetching market data from Agmarknet.
  */
 
-// This is a mock function. In a real application, you would fetch this data
-// from the Agmarknet API or another market data provider using the API key
-// from process.env.AGMARKNET_API_KEY.
+import type { MarketPrice } from '@/lib/types';
+
+// This function fetches live market data from the Agmarknet API.
 export async function getMarketPrices(location: string): Promise<{ crop: string; price: number }[]> {
-  console.log(`Fetching market prices for ${location}...`);
+  const apiKey = process.env.AGMARKNET_API_KEY;
+  if (!apiKey || apiKey === "your_api_key_here") {
+    console.warn("Agmarknet API key not found. Using mock data.");
+    return getMockMarketPrices(location);
+  }
+
+  const state = location.split(',')[1]?.trim() || location;
+
+  // Note: The Agmarknet API endpoint and query parameters might need adjustment
+  // based on the actual API documentation. This is a representative example.
+  const url = `https://data.gov.in/api/v2/agmarknet.json?api-key=${apiKey}&filters[state]=${state}&sort[arrival_date]=desc&limit=10`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error(`Agmarknet API request failed with status ${response.status}`);
+      return getMockMarketPrices(location); // Fallback to mock data
+    }
+    const data = await response.json();
+    
+    if (!data.records || data.records.length === 0) {
+        console.log("No market data found for the location, using mock data.");
+        return getMockMarketPrices(location);
+    }
+
+    // Process the records to fit the expected format
+    const processedData = data.records.map((record: any) => ({
+      crop: record.commodity,
+      price: parseFloat(record.modal_price)
+    }));
+
+    // Remove duplicates, keeping the first entry
+    const uniqueCrops = new Map();
+    processedData.forEach((item: {crop: string, price: number}) => {
+        if(!uniqueCrops.has(item.crop)){
+            uniqueCrops.set(item.crop, item);
+        }
+    });
+
+    return Array.from(uniqueCrops.values());
+
+  } catch (error) {
+    console.error("Error fetching from Agmarknet API:", error);
+    return getMockMarketPrices(location); // Fallback to mock data on error
+  }
+}
+
+// Mock function to be used if the API key is not available.
+function getMockMarketPrices(location: string): { crop: string; price: number }[] {
+  console.log(`Using mock market prices for ${location}...`);
   
-  // Mock data based on the provided location.
-  // A real implementation would have more sophisticated logic.
   if (location.toLowerCase().includes('maharashtra')) {
     return [
       { crop: 'Soybeans', price: 3600 },

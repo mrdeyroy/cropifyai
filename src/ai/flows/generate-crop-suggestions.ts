@@ -66,7 +66,7 @@ const generateCropSuggestionsPrompt = ai.definePrompt({
   - Past Crop Rotation Data: {{{pastCropRotationData}}}
   - Weather Forecast: {{{weatherForecast}}}
 
-  Considering the current market demand: {{{marketDemand}}}, suggest the most suitable crops for the farmer to plant. 
+  Based on the farm's conditions and the live market data you fetch, suggest the most suitable crops for the farmer to plant. 
   For each crop, provide the following details:
   - cropName: The name of the crop.
   - yieldForecast: The estimated yield in an appropriate unit (e.g., quintals/acre).
