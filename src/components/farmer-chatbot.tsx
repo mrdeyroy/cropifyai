@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, useTransition } from 'react';
@@ -7,13 +8,15 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Bot, Send, Loader2, User } from 'lucide-react';
+import { Bot, Send, Loader2, User, Mic, Square } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { farmerChatbot } from '@/ai/flows/farmer-chatbot';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import Textarea from 'react-textarea-autosize';
+import { transcribeVoiceInput } from '@/ai/flows/voice-input-farm-data';
+import { useLanguage } from '@/hooks/use-language';
 
 type Message = {
   role: 'user' | 'model';
@@ -27,6 +30,11 @@ export function FarmerChatbot() {
   const [isThinking, startTransition] = useTransition();
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
+
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -34,11 +42,10 @@ export function FarmerChatbot() {
     }
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isThinking) return;
+  const processAndSubmit = (text: string) => {
+    if (!text.trim() || isThinking) return;
 
-    const userMessage: Message = { role: 'user', content: input };
+    const userMessage: Message = { role: 'user', content: text };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
 
@@ -60,11 +67,87 @@ export function FarmerChatbot() {
           description:
             'Could not get a response from the AI. Please try again.',
         });
-        // Remove the user message if AI fails
         setMessages((prev) => prev.slice(0, -1));
       }
     });
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    processAndSubmit(input);
+  };
+  
+  const handleVoiceRecording = async () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      toast({
+        variant: 'destructive',
+        title: 'Voice Recording Not Supported',
+        description: 'Your browser does not support voice recording.',
+      });
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setIsRecording(true);
+      
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async () => {
+          const base64Audio = reader.result as string;
+          
+          startTransition(async () => {
+            try {
+              toast({ title: 'Transcribing your voice...' });
+              const { transcription } = await transcribeVoiceInput({
+                audioDataUri: base64Audio,
+                languageCode: language,
+              });
+              processAndSubmit(transcription);
+            } catch (error) {
+              console.error('Transcription error:', error);
+              toast({
+                variant: 'destructive',
+                title: 'Transcription Failed',
+                description: 'Could not convert your voice to text. Please try again.',
+              });
+            }
+          });
+        };
+        
+        // Stop all tracks to release the microphone
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+
+    } catch (err) {
+      console.error('Error accessing microphone:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Microphone Access Denied',
+        description: 'Please enable microphone permissions in your browser settings.',
+      });
+      setIsRecording(false);
+    }
+  };
+
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -137,7 +220,7 @@ export function FarmerChatbot() {
                 </div>
               </div>
             )}
-            {messages.length === 0 && (
+            {messages.length === 0 && !isThinking && (
                 <div className="text-center text-muted-foreground p-8">
                     <Bot className="h-10 w-10 mx-auto mb-2"/>
                     <p>Ask me anything about farming!</p>
@@ -160,12 +243,21 @@ export function FarmerChatbot() {
                   handleSubmit(e);
                 }
               }}
-              disabled={isThinking}
+              disabled={isThinking || isRecording}
             />
+            <Button
+              type="button"
+              size="icon"
+              onClick={handleVoiceRecording}
+              disabled={isThinking}
+              variant={isRecording ? 'destructive' : 'default'}
+            >
+              {isRecording ? <Square className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </Button>
             <Button
               type="submit"
               size="icon"
-              disabled={isThinking || !input.trim()}
+              disabled={isThinking || !input.trim() || isRecording}
             >
               {isThinking ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
