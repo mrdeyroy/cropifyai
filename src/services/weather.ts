@@ -39,7 +39,12 @@ export async function getWeather(location: string): Promise<WeatherData> {
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`Weather API request failed with status ${response.status}`);
+      if (response.status === 401) {
+        console.error("Authentication error with OpenWeatherMap API. Please check if your NEXT_PUBLIC_WEATHER_API_KEY is correct and active. Falling back to mock data.");
+      } else {
+        throw new Error(`Weather API request failed with status ${response.status}`);
+      }
+      return getMockWeather(location);
     }
     const data = await response.json();
 
