@@ -40,11 +40,11 @@ export async function getWeather(location: string): Promise<WeatherData> {
     const response = await fetch(url);
     if (!response.ok) {
       if (response.status === 401) {
-        console.error("Authentication error with OpenWeatherMap API. Please check if your NEXT_PUBLIC_WEATHER_API_KEY is correct and active. Falling back to mock data.");
+        console.warn("Authentication error with OpenWeatherMap API. Please check if your NEXT_PUBLIC_WEATHER_API_KEY is correct and active. Falling back to mock data.");
       } else {
-        throw new Error(`Weather API request failed with status ${response.status}`);
+        console.warn(`Weather API request failed with status ${response.status}. Falling back to mock data.`);
       }
-      return getMockWeather(location);
+      throw new Error('Failed to fetch real weather data');
     }
     const data = await response.json();
 
@@ -56,7 +56,8 @@ export async function getWeather(location: string): Promise<WeatherData> {
       uv: 'N/A', // UV Index requires a separate API call in OpenWeatherMap
     };
   } catch (error) {
-    console.error("Error fetching from OpenWeatherMap API:", error);
+    // This will now catch the thrown error from the 401 check as well
+    console.warn("Error fetching from OpenWeatherMap API:", error);
     return getMockWeather(location); // Fallback to mock data on error
   }
 }

@@ -25,7 +25,7 @@ import Link from 'next/link';
 import { marketPrices, indianCities } from '@/lib/data';
 import { YieldChart } from '@/components/yield-chart';
 import { useLanguage } from '@/hooks/use-language';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { getWeather } from '@/services/weather';
 import type { WeatherData } from '@/services/weather';
@@ -39,27 +39,27 @@ export default function DashboardPage() {
   const [isWeatherLoading, setIsWeatherLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchWeather = async () => {
-      setIsWeatherLoading(true);
-      try {
-        const data = await getWeather(location);
-        setWeatherData(data);
-      } catch (error) {
-        console.error("Failed to fetch weather data", error);
-        toast({
-            variant: 'destructive',
-            title: 'Failed to load weather',
-            description: 'Could not fetch weather data for the selected location.'
-        })
-        setWeatherData(null);
-      } finally {
-        setIsWeatherLoading(false);
-      }
-    };
+  const fetchWeather = useCallback(async (currentLocation: string) => {
+    setIsWeatherLoading(true);
+    try {
+      const data = await getWeather(currentLocation);
+      setWeatherData(data);
+    } catch (error) {
+      console.error("Failed to fetch weather data", error);
+      toast({
+          variant: 'destructive',
+          title: 'Failed to load weather',
+          description: 'Could not fetch weather data for the selected location.'
+      })
+      setWeatherData(null);
+    } finally {
+      setIsWeatherLoading(false);
+    }
+  }, [toast]);
 
-    fetchWeather();
-  }, [location, toast]);
+  useEffect(() => {
+    fetchWeather(location);
+  }, [location, fetchWeather]);
   
   const handleLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newLocation = event.target.value;
