@@ -47,7 +47,6 @@ import type { GenerateCropSuggestionsOutput } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/hooks/use-language';
 import { Label } from '@/components/ui/label';
-import { Autocomplete } from '@/components/ui/autocomplete';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
@@ -62,8 +61,6 @@ const formSchema = z.object({
   phosphorus: z.coerce.number().min(0),
   potassium: z.coerce.number().min(0),
 });
-
-const locations = [...new Set(indianCities)].map((location) => ({ value: location, label: location }));
 
 export function FarmManagement() {
   const [farms, setFarms] = useState<Farm[]>(initialFarms);
@@ -255,14 +252,18 @@ export function FarmManagement() {
                           {t('farmManagement.locationLabel')}
                         </FormLabel>
                         <FormControl>
-                          <Autocomplete
-                            options={locations}
-                            placeholder={t(
-                              'farmManagement.locationPlaceholder'
-                            )}
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          />
+                          <>
+                            <Input
+                              {...field}
+                              list="locations-datalist"
+                              placeholder={t('farmManagement.locationPlaceholder')}
+                            />
+                            <datalist id="locations-datalist">
+                              {[...new Set(indianCities)].map((location) => (
+                                <option key={location} value={location} />
+                              ))}
+                            </datalist>
+                          </>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
