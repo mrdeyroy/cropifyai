@@ -55,8 +55,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const updateProfile = async (profile: { displayName?: string; photoURL?: string; }) => {
     if (auth.currentUser) {
         await firebaseUpdateProfile(auth.currentUser, profile);
-        // Manually update the user state to reflect changes immediately
-        setUser(auth.currentUser);
+        // Create a new user object to trigger re-render
+        setUser({ ...auth.currentUser });
     }
   };
 
