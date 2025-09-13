@@ -252,7 +252,7 @@ export function FarmManagement() {
                           {t('farmManagement.locationLabel')}
                         </FormLabel>
                         <FormControl>
-                          <>
+                          <div>
                             <Input
                               {...field}
                               list="locations-datalist"
@@ -263,7 +263,7 @@ export function FarmManagement() {
                                 <option key={location} value={location} />
                               ))}
                             </datalist>
-                          </>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
