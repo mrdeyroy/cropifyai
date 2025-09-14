@@ -15,7 +15,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const protectedRoutes = ['/dashboard', '/farms', '/disease-detection', '/market-watch', '/settings'];
+const protectedRoutes = ['/dashboard', '/farms', '/disease-detection', '/market-watch', '/settings', '/financial-overview'];
 const publicRoutes = ['/login', '/signup'];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (auth.currentUser) {
         await firebaseUpdateProfile(auth.currentUser, profile);
         // Create a new user object to trigger re-render
-        setUser({ ...auth.currentUser });
+        setUser(auth.currentUser ? { ...auth.currentUser } : null);
     }
   };
 

@@ -33,13 +33,95 @@ import {
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTheme } from 'next-themes';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Camera, Loader2 } from 'lucide-react';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth } from '@/lib/firebase';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   email: z.string().email('Please enter a valid email address.').optional(),
 });
+
+function AvatarUpload() {
+  const { user, updateProfile, loading } = useAuth();
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const getInitials = (name: string) => {
+    const names = name.split(' ');
+     if (names.length > 0 && names[0]) {
+      return names[0][0].toUpperCase();
+    }
+    return '';
+  };
+  
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    setIsUploading(true);
+    try {
+      const storage = getStorage();
+      const storageRef = ref(storage, `avatars/${user.uid}/${file.name}`);
+      
+      const snapshot = await uploadBytes(storageRef, file);
+      const photoURL = await getDownloadURL(snapshot.ref);
+
+      await updateProfile({ photoURL });
+      
+      toast({
+        title: 'Profile Picture Updated',
+        description: 'Your new avatar has been saved.',
+      });
+
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Upload Failed',
+        description: 'Could not upload your profile picture. Please try again.',
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  if (loading || !user) return <div className="h-24 w-24 rounded-full bg-muted" />
+
+  return (
+      <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+        <Avatar className="h-24 w-24">
+          <AvatarImage src={user.photoURL || undefined} alt={user.displayName || ''} />
+          <AvatarFallback className="text-3xl">
+            {getInitials(user.displayName || '')}
+          </AvatarFallback>
+        </Avatar>
+        <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          {isUploading ? (
+            <Loader2 className="h-8 w-8 text-white animate-spin" />
+          ) : (
+            <Camera className="h-8 w-8 text-white" />
+          )}
+        </div>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="hidden"
+          accept="image/png, image/jpeg, image/gif"
+        />
+      </div>
+  );
+}
+
 
 export default function SettingsPage() {
   const { t, language, setLanguage } = useLanguage();
@@ -120,33 +202,36 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('settingsPage.nameLabel')}</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('settingsPage.emailLabel')}</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} disabled />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="flex items-center gap-6">
+                <AvatarUpload />
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('settingsPage.nameLabel')}</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('settingsPage.emailLabel')}</FormLabel>
+                        <FormControl>
+                          <Input type="email" {...field} disabled />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </CardContent>
             <CardFooter>

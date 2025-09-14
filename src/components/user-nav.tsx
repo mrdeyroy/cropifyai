@@ -29,10 +29,10 @@ export function UserNav() {
 
   const getInitials = (name: string) => {
     const names = name.split(' ');
-    return names
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase();
+    if (names.length > 0 && names[0]) {
+      return names[0][0].toUpperCase();
+    }
+    return '';
   };
 
   if (!user) {
@@ -55,7 +55,7 @@ export function UserNav() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-9 w-9">
-                <AvatarImage src={user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`} alt={userName} />
+                <AvatarImage src={user.photoURL || undefined} alt={userName} />
                 <AvatarFallback>{getInitials(userName)}</AvatarFallback>
               </Avatar>
             </Button>
