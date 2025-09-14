@@ -15,6 +15,7 @@
         "myFarms": "मेरे खेत",
         "diseaseDetection": "रोग पहचान",
         "marketWatch": "बाजार देखो",
+        "financials": "वित्तीय",
         "notifications": "सूचनाएं",
         "settings": "सेटिंग्स"
     },
@@ -133,5 +134,14 @@
         "priceAlertsLabel": "बाजार मूल्य अलर्ट सक्षम करें",
         "weatherAlertsLabel": "मौसम अलर्ट सक्षम करें",
         "savePreferences": "वरीयताओं को सहेजें"
+    },
+    "financialOverviewPage": {
+        "title": "वित्तीय अवलोकन",
+        "description": "अपने खेत के लिए लाभ की गणना करें और खर्चों पर नज़र रखें।",
+        "totalProfit": "कुल लाभ",
+        "last6Months": "पिछले 6 महीने",
+        "estimatedTotalProfit": "अनुमानित कुल लाभ",
+        "yourCrops": "आपकी फसलें",
+        "add": "जोड़ें"
     }
 }

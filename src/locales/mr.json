@@ -15,6 +15,7 @@
         "myFarms": "माझी शेती",
         "diseaseDetection": "रोग ओळख",
         "marketWatch": "बाजार निरीक्षण",
+        "financials": "आर्थिक",
         "notifications": "सूचना",
         "settings": "सेटिंग्ज"
     },
@@ -133,5 +134,14 @@
         "priceAlertsLabel": "बाजारभाव सूचना सक्षम करा",
         "weatherAlertsLabel": "हवामान सूचना सक्षम करा",
         "savePreferences": "प्राधान्ये जतन करा"
+    },
+     "financialOverviewPage": {
+        "title": "आर्थिक विहंगावलोकन",
+        "description": "आपल्या शेतीसाठी नफा मोजा आणि खर्चाचा मागोवा घ्या.",
+        "totalProfit": "एकूण नफा",
+        "last6Months": "गेले ६ महिने",
+        "estimatedTotalProfit": "अंदाजित एकूण नफा",
+        "yourCrops": "तुमची पिके",
+        "add": "जोडा"
     }
 }

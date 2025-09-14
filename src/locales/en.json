@@ -15,6 +15,7 @@
         "myFarms": "My Farms",
         "diseaseDetection": "Disease Detection",
         "marketWatch": "Market Watch",
+        "financials": "Financials",
         "notifications": "Notifications",
         "settings": "Settings"
     },
@@ -133,5 +134,14 @@
         "priceAlertsLabel": "Enable market price alerts",
         "weatherAlertsLabel": "Enable weather alerts",
         "savePreferences": "Save Preferences"
+    },
+    "financialOverviewPage": {
+        "title": "Financial Overview",
+        "description": "Calculate profit and track expenses for your farm.",
+        "totalProfit": "Total Profit",
+        "last6Months": "Last 6 months",
+        "estimatedTotalProfit": "Estimated Total Profit",
+        "yourCrops": "Your Crops",
+        "add": "Add"
     }
 }
