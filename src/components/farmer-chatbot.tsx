@@ -45,6 +45,8 @@ import {
   MoreVertical,
   X,
   Check,
+  Volume2,
+  Clipboard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -54,8 +56,11 @@ import { useToast } from '@/hooks/use-toast';
 import Textarea from 'react-textarea-autosize';
 import { transcribeVoiceInput } from '@/ai/flows/voice-input-farm-data';
 import { useLanguage } from '@/hooks/use-language';
+import { textToSpeech } from '@/ai/flows/text-to-speech';
+
 
 type Message = {
+  id: string;
   role: 'user' | 'model';
   content: string;
 };
@@ -89,6 +94,10 @@ export function FarmerChatbot() {
   const [editingConversationId, setEditingConversationId] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [deletingConversationId, setDeletingConversationId] = useState<string | null>(null);
+  
+  const [audioStates, setAudioStates] = useState<Record<string, 'idle' | 'loading' | 'playing'>>({});
+  const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -167,6 +176,62 @@ export function FarmerChatbot() {
     setDeletingConversationId(null);
   }
 
+  const handleCopy = (messageId: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedStates(prev => ({ ...prev, [messageId]: true }));
+    setTimeout(() => {
+        setCopiedStates(prev => ({ ...prev, [messageId]: false }));
+    }, 2000);
+  }
+
+  const handleTextToSpeech = async (messageId: string, text: string) => {
+      // Stop any currently playing audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+
+      // Reset all other audio states to idle
+      const resetStates: Record<string, 'idle' | 'loading' | 'playing'> = {};
+      Object.keys(audioStates).forEach(key => {
+        resetStates[key] = 'idle';
+      });
+
+
+      setAudioStates({ ...resetStates, [messageId]: 'loading' });
+
+      try {
+        const result = await textToSpeech(text);
+        if (result.audioDataUri) {
+          const audio = new Audio(result.audioDataUri);
+          audioRef.current = audio;
+          
+          audio.onplay = () => {
+            setAudioStates(prev => ({ ...prev, [messageId]: 'playing' }));
+          };
+          
+          audio.onended = () => {
+            setAudioStates(prev => ({ ...prev, [messageId]: 'idle' }));
+            audioRef.current = null;
+          };
+          
+          audio.onerror = () => {
+            setAudioStates(prev => ({ ...prev, [messageId]: 'idle' }));
+            toast({ variant: 'destructive', title: 'Error playing audio.' });
+          }
+
+          audio.play();
+
+        } else {
+          throw new Error('No audio data received.');
+        }
+      } catch (error) {
+        console.error('Text-to-speech error:', error);
+        toast({ variant: 'destructive', title: 'Text-to-speech failed.' });
+        setAudioStates(prev => ({ ...prev, [messageId]: 'idle' }));
+      }
+  }
+
 
   const processAndSubmit = (text: string) => {
     if (!text.trim() || isThinking) return;
@@ -185,7 +250,7 @@ export function FarmerChatbot() {
     }
 
 
-    const userMessage: Message = { role: 'user', content: text };
+    const userMessage: Message = { id: `msg_${Date.now()}`, role: 'user', content: text };
     const updatedMessages = [...(conversations[currentConversationId]?.messages || []), userMessage];
 
     setConversations(prev => ({
@@ -201,9 +266,10 @@ export function FarmerChatbot() {
     startTransition(async () => {
       try {
         const result = await farmerChatbot({
-          history: updatedMessages,
+          history: updatedMessages.map(({role, content}) => ({role, content})),
         });
         const modelMessage: Message = {
+          id: `msg_${Date.now()}`,
           role: 'model',
           content: result.response,
         };
@@ -390,9 +456,9 @@ export function FarmerChatbot() {
 
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
           <div className="space-y-4">
-            {messages.map((message, index) => (
+            {messages.map((message) => (
               <div
-                key={index}
+                key={message.id}
                 className={cn(
                   'flex items-start gap-3',
                   message.role === 'user' ? 'justify-end' : ''
@@ -407,13 +473,25 @@ export function FarmerChatbot() {
                 )}
                 <div
                   className={cn(
-                    'p-3 rounded-lg max-w-[80%] text-sm',
+                    'p-3 rounded-lg max-w-[80%] text-sm group relative',
                     message.role === 'user'
                       ? 'bg-secondary text-secondary-foreground'
                       : 'bg-card border'
                   )}
                 >
                   {message.content}
+                   {message.role === 'model' && (
+                       <div className="absolute -bottom-2 right-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleTextToSpeech(message.id, message.content)}>
+                                {audioStates[message.id] === 'loading' && <Loader2 className="h-4 w-4 animate-spin" />}
+                                {audioStates[message.id] === 'playing' && <Volume2 className="h-4 w-4 text-primary animate-pulse" />}
+                                {audioStates[message.id] !== 'loading' && audioStates[message.id] !== 'playing' && <Volume2 className="h-4 w-4" />}
+                            </Button>
+                           <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleCopy(message.id, message.content)}>
+                               {copiedStates[message.id] ? <Check className="h-4 w-4 text-green-500" /> : <Clipboard className="h-4 w-4" />}
+                           </Button>
+                       </div>
+                   )}
                 </div>
                  {message.role === 'user' && (
                   <Avatar className="h-8 w-8">
@@ -503,5 +581,3 @@ export function FarmerChatbot() {
     </>
   );
 }
-
-    
