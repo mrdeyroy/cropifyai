@@ -90,13 +90,13 @@ export default function FinancialOverviewPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   const calculations = transactions.reduce(
-    (acc, t) => {
-      if (t.type === 'income') {
-        acc.totalRevenue += t.amount;
+    (acc, transaction) => {
+      if (transaction.type === 'income') {
+        acc.totalRevenue += transaction.amount;
       } else {
-        acc.totalExpenses += t.amount;
-        acc.expenseByCategory[t.category] =
-          (acc.expenseByCategory[t.category] || 0) + t.amount;
+        acc.totalExpenses += transaction.amount;
+        acc.expenseByCategory[transaction.category] =
+          (acc.expenseByCategory[transaction.category] || 0) + transaction.amount;
       }
       return acc;
     },
@@ -231,38 +231,38 @@ export default function FinancialOverviewPage() {
                 <TableBody>
                   {transactions
                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                    .map((t) => (
-                      <TableRow key={t.id}>
+                    .map((transaction) => (
+                      <TableRow key={transaction.id}>
                         <TableCell className="text-muted-foreground">
-                          {format(new Date(t.date), 'dd MMM, yyyy')}
+                          {format(new Date(transaction.date), 'dd MMM, yyyy')}
                         </TableCell>
-                        <TableCell className="font-medium">{t.description}</TableCell>
+                        <TableCell className="font-medium">{transaction.description}</TableCell>
                         <TableCell>
                            <Badge
                             variant={
-                              t.type === 'income' ? 'default' : 'secondary'
+                              transaction.type === 'income' ? 'default' : 'secondary'
                             }
                             className={
-                                t.type === 'income' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : ''
+                                transaction.type === 'income' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : ''
                             }
                           >
-                            {t(`expenseCategories.${t.category}`)}
+                            {t(`expenseCategories.${transaction.category}`)}
                           </Badge>
                         </TableCell>
                         <TableCell
                           className={`text-right font-mono font-semibold flex items-center justify-end gap-1 ${
-                            t.type === 'income'
+                            transaction.type === 'income'
                               ? 'text-green-600'
                               : 'text-red-600'
                           }`}
                         >
-                           {t.type === 'income' ? (
+                           {transaction.type === 'income' ? (
                                 <ArrowUpRight className="h-4 w-4" />
                             ) : (
                                 <ArrowDownRight className="h-4 w-4" />
                             )}
                           <IndianRupee className="h-4 w-4" />
-                          {t.amount.toLocaleString('en-IN')}
+                          {transaction.amount.toLocaleString('en-IN')}
                         </TableCell>
                       </TableRow>
                   ))}
