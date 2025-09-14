@@ -34,6 +34,21 @@ export type MarketPrice = {
   history: { date: string; price: number }[];
 };
 
+export const ExpenseCategorySchema = z.enum([
+    'seeds', 'fertilizer', 'pesticides', 'irrigation', 'labor', 'machinery', 'transport', 'other'
+]);
+export type ExpenseCategory = z.infer<typeof ExpenseCategorySchema>;
+
+export const TransactionSchema = z.object({
+    id: z.string(),
+    date: z.string(),
+    type: z.enum(['income', 'expense']),
+    category: z.string(), // For income, might be 'sales', for expenses use ExpenseCategory
+    description: z.string(),
+    amount: z.number(),
+});
+export type Transaction = z.infer<typeof TransactionSchema>;
+
 export const IdentifyCropDiseaseInputSchema = z.object({
   photoDataUri: z
     .string()

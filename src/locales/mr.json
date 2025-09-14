@@ -135,13 +135,44 @@
         "weatherAlertsLabel": "हवामान सूचना सक्षम करा",
         "savePreferences": "प्राधान्ये जतन करा"
     },
-     "financialOverviewPage": {
+    "financialOverviewPage": {
         "title": "आर्थिक विहंगावलोकन",
-        "description": "आपल्या शेतीसाठी नफा मोजा आणि खर्चाचा मागोवा घ्या.",
-        "totalProfit": "एकूण नफा",
-        "last6Months": "गेले ६ महिने",
-        "estimatedTotalProfit": "अंदाजित एकूण नफा",
-        "yourCrops": "तुमची पिके",
-        "add": "जोडा"
+        "description": "आपल्या शेतीसाठी खर्च मागोवा घ्या आणि नफा मोजा.",
+        "totalRevenue": "एकूण महसूल",
+        "totalExpenses": "एकूण खर्च",
+        "netProfit": "निव्वळ नफा / तोटा",
+        "profitMargin": "नफा मार्जिन",
+        "transactionHistory": "व्यवहार इतिहास",
+        "transactionHistoryDescription": "तुमच्या सर्व उत्पन्न आणि खर्चाची नोंद.",
+        "addTransaction": "व्यवहार जोडा",
+        "expenseBreakdown": "खर्च विश्लेषण",
+        "dateHeader": "तारीख",
+        "descriptionHeader": "वर्णन",
+        "categoryHeader": "श्रेणी",
+        "amountHeader": "रक्कम"
+    },
+    "addTransactionForm": {
+        "typeLabel": "व्यवहाराचा प्रकार",
+        "incomeLabel": "उत्पन्न",
+        "expenseLabel": "खर्च",
+        "dateLabel": "तारीख",
+        "categoryLabel": "श्रेणी",
+        "categoryPlaceholder": "एक श्रेणी निवडा",
+        "salesCategory": "विक्री",
+        "descriptionLabel": "वर्णन",
+        "descriptionPlaceholder": "उदा. गव्हाची विक्री",
+        "amountLabel": "रक्कम",
+        "addButton": "व्यवहार जोडा"
+    },
+    "expenseCategories": {
+        "seeds": "बियाणे",
+        "fertilizer": "खते",
+        "pesticides": "कीटकनाशके",
+        "irrigation": "सिंचन",
+        "labor": "मजुरी",
+        "machinery": "यंत्रसामग्री",
+        "transport": "वाहतूक",
+        "other": "इतर",
+        "sales": "विक्री"
     }
 }

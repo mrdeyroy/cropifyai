@@ -137,11 +137,42 @@
     },
     "financialOverviewPage": {
         "title": "वित्तीय अवलोकन",
-        "description": "अपने खेत के लिए लाभ की गणना करें और खर्चों पर नज़र रखें।",
-        "totalProfit": "कुल लाभ",
-        "last6Months": "पिछले 6 महीने",
-        "estimatedTotalProfit": "अनुमानित कुल लाभ",
-        "yourCrops": "आपकी फसलें",
-        "add": "जोड़ें"
+        "description": "अपने खेत के लिए खर्चों पर नज़र रखें और लाभ की गणना करें।",
+        "totalRevenue": "कुल राजस्व",
+        "totalExpenses": "कुल खर्च",
+        "netProfit": "शुद्ध लाभ / हानि",
+        "profitMargin": "लाभ मार्जिन",
+        "transactionHistory": "लेन-देन का इतिहास",
+        "transactionHistoryDescription": "आपके सभी आय और व्यय का एक लॉग।",
+        "addTransaction": "लेन-देन जोड़ें",
+        "expenseBreakdown": "व्यय का विश्लेषण",
+        "dateHeader": "तारीख",
+        "descriptionHeader": "विवरण",
+        "categoryHeader": "श्रेणी",
+        "amountHeader": "राशि"
+    },
+    "addTransactionForm": {
+        "typeLabel": "लेन-देन का प्रकार",
+        "incomeLabel": "आय",
+        "expenseLabel": "व्यय",
+        "dateLabel": "तारीख",
+        "categoryLabel": "श्रेणी",
+        "categoryPlaceholder": "एक श्रेणी चुनें",
+        "salesCategory": "बिक्री",
+        "descriptionLabel": "विवरण",
+        "descriptionPlaceholder": "जैसे, गेहूं की बिक्री",
+        "amountLabel": "राशि",
+        "addButton": "लेन-देन जोड़ें"
+    },
+    "expenseCategories": {
+        "seeds": "बीज",
+        "fertilizer": "उर्वरक",
+        "pesticides": "कीटनाशक",
+        "irrigation": "सिंचाई",
+        "labor": "श्रम",
+        "machinery": "मशीनरी",
+        "transport": "परिवहन",
+        "other": "अन्य",
+        "sales": "बिक्री"
     }
 }

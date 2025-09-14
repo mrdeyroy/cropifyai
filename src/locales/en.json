@@ -137,11 +137,42 @@
     },
     "financialOverviewPage": {
         "title": "Financial Overview",
-        "description": "Calculate profit and track expenses for your farm.",
-        "totalProfit": "Total Profit",
-        "last6Months": "Last 6 months",
-        "estimatedTotalProfit": "Estimated Total Profit",
-        "yourCrops": "Your Crops",
-        "add": "Add"
+        "description": "Track expenses and calculate profit for your farm.",
+        "totalRevenue": "Total Revenue",
+        "totalExpenses": "Total Expenses",
+        "netProfit": "Net Profit / Loss",
+        "profitMargin": "Profit Margin",
+        "transactionHistory": "Transaction History",
+        "transactionHistoryDescription": "A log of all your income and expenses.",
+        "addTransaction": "Add Transaction",
+        "expenseBreakdown": "Expense Breakdown",
+        "dateHeader": "Date",
+        "descriptionHeader": "Description",
+        "categoryHeader": "Category",
+        "amountHeader": "Amount"
+    },
+    "addTransactionForm": {
+        "typeLabel": "Transaction Type",
+        "incomeLabel": "Income",
+        "expenseLabel": "Expense",
+        "dateLabel": "Date",
+        "categoryLabel": "Category",
+        "categoryPlaceholder": "Select a category",
+        "salesCategory": "Sales",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "e.g., Sale of wheat",
+        "amountLabel": "Amount",
+        "addButton": "Add Transaction"
+    },
+    "expenseCategories": {
+        "seeds": "Seeds",
+        "fertilizer": "Fertilizer",
+        "pesticides": "Pesticides",
+        "irrigation": "Irrigation",
+        "labor": "Labor",
+        "machinery": "Machinery",
+        "transport": "Transport",
+        "other": "Other",
+        "sales": "Sales"
     }
 }
