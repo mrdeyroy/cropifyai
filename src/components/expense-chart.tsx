@@ -1,6 +1,13 @@
 'use client';
 
-import { Pie, PieChart, Cell } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from 'recharts';
 
 import {
   ChartContainer,
@@ -20,48 +27,63 @@ const chartColors = [
 ];
 
 type ExpenseChartProps = {
-    data: { name: string; value: number; label: string }[];
-}
+  data: { name: string; value: number; label: string }[];
+};
 
 export function ExpenseChart({ data }: ExpenseChartProps) {
   const chartConfig: ChartConfig = useMemo(() => {
     const config: ChartConfig = {};
     if (data) {
-        data.forEach((item, index) => {
-            config[item.name] = {
-                label: item.label,
-                color: chartColors[index % chartColors.length]
-            };
-        });
+      data.forEach((item, index) => {
+        config[item.name] = {
+          label: item.label,
+          color: chartColors[index % chartColors.length],
+        };
+      });
     }
     return config;
   }, [data]);
-  
-  const totalValue = useMemo(() => {
-    return data ? data.reduce((acc, curr) => acc + curr.value, 0) : 0;
-  }, [data]);
 
   if (!data || data.length === 0) {
-      return (
-        <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">
-            No data to display
-        </div>
-      )
+    return (
+      <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">
+        No data to display
+      </div>
+    );
   }
 
   return (
     <ChartContainer
       config={chartConfig}
-      className="mx-auto aspect-square h-[250px]"
+      className="h-[300px] w-full"
     >
-      <PieChart>
+      <BarChart
+        accessibilityLayer
+        data={data}
+        layout="vertical"
+        margin={{
+          left: 10,
+          right: 30,
+        }}
+      >
+        <CartesianGrid horizontal={false} />
+        <YAxis
+          dataKey="label"
+          type="category"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={10}
+          width={80}
+          className="text-xs"
+        />
+        <XAxis dataKey="value" type="number" hide />
         <ChartTooltip
             cursor={false}
             content={<ChartTooltipContent 
                 hideLabel 
                 formatter={(value, name, item) => (
                      <div className='flex flex-col'>
-                        <span className="text-xs text-muted-foreground">{item.payload.payload.label}</span>
+                        <span className="text-xs text-muted-foreground">{item.payload.label}</span>
                         <div className='flex items-center font-bold'>
                             <IndianRupee className="h-4 w-4 mr-1" />
                             {Number(value).toLocaleString('en-IN')}
@@ -70,21 +92,15 @@ export function ExpenseChart({ data }: ExpenseChartProps) {
                 )}
             />}
         />
-        <Pie
-            data={data}
-            dataKey="value"
-            nameKey="name"
-            innerRadius={60}
-            strokeWidth={5}
-        >
+        <Bar dataKey="value" layout="vertical" radius={4}>
             {data.map((entry, index) => (
                 <Cell 
                     key={`cell-${index}`} 
                     fill={chartColors[index % chartColors.length]} 
                 />
             ))}
-        </Pie>
-      </PieChart>
+        </Bar>
+      </BarChart>
     </ChartContainer>
   );
 }
