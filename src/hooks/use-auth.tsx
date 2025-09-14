@@ -15,7 +15,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const protectedRoutes = ['/dashboard', '/farms', '/disease-detection', '/market-watch', '/settings', '/financial-overview'];
+const protectedRoutes = ['/dashboard', '/farms', '/disease-detection', '/market-watch', '/settings', '/financial-overview', '/notifications'];
 const publicRoutes = ['/login', '/signup'];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -55,8 +55,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const updateProfile = async (profile: { displayName?: string; photoURL?: string; }) => {
     if (auth.currentUser) {
         await firebaseUpdateProfile(auth.currentUser, profile);
-        // Create a new user object to trigger re-render
-        setUser(auth.currentUser ? { ...auth.currentUser } : null);
+        // Manually update the user state to ensure UI reflects changes immediately
+        setUser(prevUser => {
+          if (!prevUser) return null;
+          // The auth.currentUser object is the same reference, so we need to create a new one
+          // to trigger re-renders. We also merge the new profile data.
+          return {
+            ...prevUser,
+            ...profile,
+            // Re-create the user object from a plain object to satisfy Type 'User'
+            reload: prevUser.reload,
+            delete: prevUser.delete,
+            getIdToken: prevUser.getIdToken,
+            getIdTokenResult: prevUser.getIdTokenResult,
+            toJSON: prevUser.toJSON,
+            providerData: prevUser.providerData,
+            providerId: prevUser.providerId,
+            uid: prevUser.uid,
+            email: prevUser.email,
+            emailVerified: prevUser.emailVerified,
+            isAnonymous: prevUser.isAnonymous,
+            metadata: prevUser.metadata,
+            phoneNumber: prevUser.phoneNumber,
+            tenantId: prevUser.tenantId,
+            displayName: profile.displayName || prevUser.displayName,
+            photoURL: profile.photoURL || prevUser.photoURL,
+          } as User;
+        });
     }
   };
 
