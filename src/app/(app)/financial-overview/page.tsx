@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -40,10 +40,36 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
+const TRANSACTIONS_STORAGE_KEY = 'transactions';
+
 export default function FinancialOverviewPage() {
   const { t } = useLanguage();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    try {
+      const storedTransactions = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);
+      if (storedTransactions) {
+        setTransactions(JSON.parse(storedTransactions));
+      }
+    } catch (error) {
+      console.error('Failed to load transactions from localStorage', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      try {
+        localStorage.setItem(TRANSACTIONS_STORAGE_KEY, JSON.stringify(transactions));
+      } catch (error) {
+        console.error('Failed to save transactions to localStorage', error);
+      }
+    }
+  }, [transactions, isClient]);
+
 
   const calculations = transactions.reduce(
     (acc, transaction) => {
@@ -81,6 +107,10 @@ export default function FinancialOverviewPage() {
     setIsFormOpen(false);
   };
 
+  if (!isClient) {
+    return null; // or a loading skeleton
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -113,7 +143,7 @@ export default function FinancialOverviewPage() {
           </CardHeader>
           <CardContent className="flex items-center gap-4">
             <div className="rounded-full bg-red-100 p-3 dark:bg-red-900/50">
-              <TrendingDown className="h-6 w-6 text-red-600 dark:text-red-400" />
+              <TrendingDown className="h-6 w-6 text-red-600 dark:red-400" />
             </div>
             <div className="text-3xl font-bold flex items-center">
               <IndianRupee className="h-7 w-7" />
