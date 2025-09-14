@@ -130,7 +130,7 @@ export function FarmerChatbot() {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [activeConversationId, conversations]);
+  }, [activeConversationId, conversations, (activeConversationId ? conversations[activeConversationId]?.messages : [])]);
 
   const messages = activeConversationId ? conversations[activeConversationId]?.messages || [] : [];
   
@@ -141,7 +141,7 @@ export function FarmerChatbot() {
         title: t('farmerChatbot.newChat'),
         messages: [],
     };
-    setConversations(prev => ({ ...prev, [newId]: newConversation }));
+    setConversations(prev => ({ [newId]: newConversation, ...prev }));
     setActiveConversationId(newId);
     setIsHistoryOpen(false);
   }
@@ -234,9 +234,17 @@ export function FarmerChatbot() {
         } else {
           throw new Error('No audio data received.');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Text-to-speech error:', error);
-        toast({ variant: 'destructive', title: 'Text-to-speech failed.' });
+        if (error.message && error.message.includes('503 Service Unavailable')) {
+             toast({ 
+                variant: 'destructive', 
+                title: 'Text-to-speech service is busy',
+                description: 'The model is currently overloaded. Please try again in a moment.'
+            });
+        } else {
+             toast({ variant: 'destructive', title: 'Text-to-speech failed.' });
+        }
         setAudioStates(prev => ({ ...prev, [messageId]: 'idle' }));
       }
   }
@@ -246,49 +254,71 @@ export function FarmerChatbot() {
     if (!text.trim() || isThinking) return;
 
     let currentConversationId = activeConversationId;
+    let isNewChat = false;
     if (!currentConversationId) {
+        isNewChat = true;
         const newId = `chat_${Date.now()}`;
         const newConversation: Conversation = {
             id: newId,
             title: text.substring(0, 30), // Use start of message as title
             messages: [],
         };
-        setConversations(prev => ({ ...prev, [newId]: newConversation }));
+        setConversations(prev => ({ [newId]: newConversation, ...prev }));
         setActiveConversationId(newId);
         currentConversationId = newId;
     }
 
 
     const userMessage: Message = { id: `msg_${Date.now()}`, role: 'user', content: text };
-    const updatedMessages = [...(conversations[currentConversationId]?.messages || []), userMessage];
-
-    setConversations(prev => ({
+    
+    // Update title for new chats
+    if (isNewChat) {
+       setConversations(prev => ({
         ...prev,
         [currentConversationId!]: {
             ...prev[currentConversationId!],
-            messages: updatedMessages,
+            title: text.substring(0, 30),
+            messages: [userMessage],
         }
-    }));
+       }));
+    } else {
+       setConversations(prev => ({
+        ...prev,
+        [currentConversationId!]: {
+            ...prev[currentConversationId!],
+            messages: [...(prev[currentConversationId!]?.messages || []), userMessage],
+        }
+       }));
+    }
+
 
     setInput('');
 
     startTransition(async () => {
       try {
+        const currentMessages = conversations[currentConversationId!]?.messages || [];
+        const historyForApi = [...currentMessages, userMessage].map(({role, content}) => ({role, content}));
+        
         const result = await farmerChatbot({
-          history: updatedMessages.map(({role, content}) => ({role, content})),
+          history: historyForApi,
         });
         const modelMessage: Message = {
           id: `msg_${Date.now()}`,
           role: 'model',
           content: result.response,
         };
-        setConversations(prev => ({
-            ...prev,
-            [currentConversationId!]: {
-                ...prev[currentConversationId!],
-                messages: [...updatedMessages, modelMessage],
+        
+        setConversations(prev => {
+            const finalMessages = [...(prev[currentConversationId!]?.messages || []), modelMessage];
+            return {
+                ...prev,
+                [currentConversationId!]: {
+                    ...prev[currentConversationId!],
+                    messages: finalMessages
+                }
             }
-        }));
+        });
+        
       } catch (error) {
         console.error('Chatbot error:', error);
         toast({
@@ -301,7 +331,7 @@ export function FarmerChatbot() {
             ...prev,
             [currentConversationId!]: {
                 ...prev[currentConversationId!],
-                messages: updatedMessages.slice(0, -1),
+                messages: prev[currentConversationId!].messages.slice(0, -1),
             }
         }));
       }
@@ -430,14 +460,15 @@ export function FarmerChatbot() {
                     <ScrollArea className="flex-1 h-[calc(100%-120px)] p-2">
                         <div className="space-y-2">
                             {Object.values(conversations).sort((a, b) => parseInt(b.id.split('_')[1]) - parseInt(a.id.split('_')[1])).map(convo => (
-                                editingConversationId === convo.id ? (
-                                    <div key={convo.id} className="flex items-center gap-2 p-2">
+                                <div key={convo.id}>
+                                {editingConversationId === convo.id ? (
+                                    <div className="flex items-center gap-2 p-2">
                                         <Input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} className="h-8" />
                                         <Button size="icon" className="h-8 w-8" onClick={handleRename}><Check className="h-4 w-4" /></Button>
                                         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditingConversationId(null)}><X className="h-4 w-4" /></Button>
                                     </div>
                                 ) : (
-                                <div key={convo.id} className="group flex items-center justify-between p-2 rounded-md hover:bg-muted cursor-pointer" onClick={() => switchConversation(convo.id)}>
+                                <div className="group flex items-center justify-between p-2 rounded-md hover:bg-muted cursor-pointer" onClick={() => switchConversation(convo.id)}>
                                     <p className="truncate text-sm">{convo.title}</p>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -455,7 +486,8 @@ export function FarmerChatbot() {
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </div>
-                                )
+                                )}
+                                </div>
                             ))}
                         </div>
                     </ScrollArea>
