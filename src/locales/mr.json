@@ -174,5 +174,24 @@
         "transport": "वाहतूक",
         "other": "इतर",
         "sales": "विक्री"
+    },
+    "farmerChatbot": {
+        "title": "एग्रीबॉट सहाय्यक",
+        "description": "तुमचा एआय शेती तज्ञ",
+        "placeholder": "पिके, माती, कीटकांबद्दल विचारा...",
+        "emptyState": "मला शेतीबद्दल काहीही विचारा!",
+        "openChatbotAriaLabel": "शेतकरी चॅटबॉट उघडा",
+        "chatHistory": "चॅट इतिहास",
+        "newChat": "नवीन चॅट",
+        "rename": "नाव बदला",
+        "delete": "हटवा",
+        "cancel": "रद्द करा",
+        "deleteConfirmTitle": "तुम्ही निश्चित आहात का?",
+        "deleteConfirmDescription": "ही क्रिया पूर्ववत केली जाऊ शकत नाही. हे संभाषण कायमचे हटवेल.",
+        "errorToastTitle": "चॅटबॉट त्रुटी",
+        "errorToastDescription": "एआयकडून प्रतिसाद मिळू शकला नाही. कृपया पुन्हा प्रयत्न करा.",
+        "transcribingToast": "तुमच्या आवाजाचे प्रतिलेखन होत आहे...",
+        "transcriptionFailedToastTitle": "प्रतिलेखन अयशस्वी",
+        "transcriptionFailedToastDescription": "तुमचा आवाज मजकूरात रूपांतरित करू शकलो नाही. कृपया पुन्हा प्रयत्न करा."
     }
 }

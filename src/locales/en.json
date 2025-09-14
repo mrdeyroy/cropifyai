@@ -174,5 +174,24 @@
         "transport": "Transport",
         "other": "Other",
         "sales": "Sales"
+    },
+    "farmerChatbot": {
+        "title": "AgriBot Assistant",
+        "description": "Your AI farming expert",
+        "placeholder": "Ask about crops, soil, pests...",
+        "emptyState": "Ask me anything about farming!",
+        "openChatbotAriaLabel": "Open Farmer Chatbot",
+        "chatHistory": "Chat History",
+        "newChat": "New Chat",
+        "rename": "Rename",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "deleteConfirmTitle": "Are you sure?",
+        "deleteConfirmDescription": "This action cannot be undone. This will permanently delete this conversation.",
+        "errorToastTitle": "Chatbot Error",
+        "errorToastDescription": "Could not get a response from the AI. Please try again.",
+        "transcribingToast": "Transcribing your voice...",
+        "transcriptionFailedToastTitle": "Transcription Failed",
+        "transcriptionFailedToastDescription": "Could not convert your voice to text. Please try again."
     }
 }

@@ -174,5 +174,24 @@
         "transport": "परिवहन",
         "other": "अन्य",
         "sales": "बिक्री"
+    },
+    "farmerChatbot": {
+        "title": "एग्रीबॉट सहायक",
+        "description": "आपका एआई खेती विशेषज्ञ",
+        "placeholder": "फसलों, मिट्टी, कीटों के बारे में पूछें...",
+        "emptyState": "मुझसे खेती के बारे में कुछ भी पूछें!",
+        "openChatbotAriaLabel": "किसान चैटबॉट खोलें",
+        "chatHistory": "चैट इतिहास",
+        "newChat": "नई चैट",
+        "rename": "नाम बदलें",
+        "delete": "हटाएं",
+        "cancel": "रद्द करें",
+        "deleteConfirmTitle": "क्या आप निश्चित हैं?",
+        "deleteConfirmDescription": "यह क्रिया पूर्ववत नहीं की जा सकती। यह इस बातचीत को स्थायी रूप से हटा देगा।",
+        "errorToastTitle": "चैटबॉट त्रुटि",
+        "errorToastDescription": "एआई से प्रतिक्रिया नहीं मिल सकी। कृपया फिर से प्रयास करें।",
+        "transcribingToast": "आपकी आवाज़ का प्रतिलेखन हो रहा है...",
+        "transcriptionFailedToastTitle": "प्रतिलेखन विफल",
+        "transcriptionFailedToastDescription": "आपकी आवाज़ को पाठ में परिवर्तित नहीं किया जा सका। कृपया फिर से प्रयास करें।"
     }
 }
