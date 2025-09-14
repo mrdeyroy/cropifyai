@@ -49,8 +49,8 @@ export default function MarketWatchPage() {
                 {t('marketWatchPage.pricesDescription')}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Table>
+            <CardContent className="p-0 sm:p-6 sm:pt-0">
+              <Table className="hidden sm:table">
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t('marketWatchPage.cropHeader')}</TableHead>
@@ -103,6 +103,45 @@ export default function MarketWatchPage() {
                   ))}
                 </TableBody>
               </Table>
+              {/* Mobile Card View */}
+              <div className="sm:hidden space-y-2 p-4">
+                  {marketPrices.map((item) => (
+                    <Card
+                      key={item.crop}
+                      onClick={() => setSelectedCrop(item)}
+                       className={cn(
+                        'cursor-pointer',
+                        selectedCrop.crop === item.crop && 'bg-muted/50 border-primary'
+                      )}
+                    >
+                      <CardContent className="p-4 flex justify-between items-center">
+                        <div>
+                          <p className="font-bold text-lg">{item.crop}</p>
+                          <p className="text-muted-foreground text-sm">{item.lastUpdated}</p>
+                        </div>
+                        <div className="text-right">
+                          <div className="flex items-center justify-end font-mono text-lg">
+                            <IndianRupee className="h-5 w-5 mr-1" />
+                            {item.price.toFixed(2)}
+                          </div>
+                          <div
+                            className={`flex items-center justify-end gap-1 font-mono text-sm ${
+                              item.change >= 0 ? 'text-green-600' : 'text-red-600'
+                            }`}
+                          >
+                            {item.change >= 0 ? (
+                              <ArrowUp className="h-4 w-4" />
+                            ) : (
+                              <ArrowDown className="h-4 w-4" />
+                            )}
+                            {item.change.toFixed(2)}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+
             </CardContent>
           </Card>
         </div>
