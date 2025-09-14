@@ -60,27 +60,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (!prevUser) return null;
           // The auth.currentUser object is the same reference, so we need to create a new one
           // to trigger re-renders. We also merge the new profile data.
-          return {
-            ...prevUser,
-            ...profile,
-            // Re-create the user object from a plain object to satisfy Type 'User'
-            reload: prevUser.reload,
-            delete: prevUser.delete,
-            getIdToken: prevUser.getIdToken,
-            getIdTokenResult: prevUser.getIdTokenResult,
-            toJSON: prevUser.toJSON,
-            providerData: prevUser.providerData,
-            providerId: prevUser.providerId,
-            uid: prevUser.uid,
-            email: prevUser.email,
-            emailVerified: prevUser.emailVerified,
-            isAnonymous: prevUser.isAnonymous,
-            metadata: prevUser.metadata,
-            phoneNumber: prevUser.phoneNumber,
-            tenantId: prevUser.tenantId,
-            displayName: profile.displayName || prevUser.displayName,
-            photoURL: profile.photoURL || prevUser.photoURL,
-          } as User;
+          const newUser = { ...auth.currentUser, ...profile } as User;
+          
+          return newUser;
         });
     }
   };
