@@ -84,6 +84,7 @@ export const GenerateCropSuggestionsInputSchema = z.object({
   temperature: z.number().describe('The average temperature in Celsius.'),
   pastCropRotationData: z.string().describe('Information about past crop rotations on the farm.'),
   weatherForecast: z.string().describe('Weather forecast for the location.'),
+  budget: z.number().describe('The farmer\'s budget for planting crops.'),
 });
 
 export type GenerateCropSuggestionsInput = z.infer<

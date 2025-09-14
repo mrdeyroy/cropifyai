@@ -40,6 +40,7 @@ import {
   Leaf,
   Target,
   Download,
+  IndianRupee,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateCropSuggestions } from '@/ai/flows/generate-crop-suggestions';
@@ -60,6 +61,7 @@ const formSchema = z.object({
   nitrogen: z.coerce.number().min(0),
   phosphorus: z.coerce.number().min(0),
   potassium: z.coerce.number().min(0),
+  budget: z.coerce.number().min(0, 'Budget must be a positive number.'),
 });
 
 export function FarmManagement() {
@@ -87,6 +89,7 @@ export function FarmManagement() {
       nitrogen: selectedFarm.nutrients.nitrogen,
       phosphorus: selectedFarm.nutrients.phosphorus,
       potassium: selectedFarm.nutrients.potassium,
+      budget: 50000,
     },
   });
 
@@ -103,6 +106,7 @@ export function FarmManagement() {
         nitrogen: farm.nutrients.nitrogen,
         phosphorus: farm.nutrients.phosphorus,
         potassium: farm.nutrients.potassium,
+        budget: 50000, // Reset budget on farm change
       });
       setSuggestions(null);
     }
@@ -126,6 +130,7 @@ export function FarmManagement() {
           nutrientContent: `N:${values.nitrogen}, P:${values.phosphorus}, K:${values.potassium} ppm`,
           pastCropRotationData: 'Corn -> Soybeans -> Wheat', // Placeholder
           weatherForecast: 'Mild spring, hot summer expected.', // Placeholder
+          budget: values.budget,
         });
         setSuggestions(result);
       } catch (error) {
@@ -308,7 +313,37 @@ export function FarmManagement() {
                       </FormItem>
                     )}
                   />
-
+                  <div className="grid grid-cols-2 gap-4">
+                     <FormField
+                      control={form.control}
+                      name="budget"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Budget</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                               <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                               <Input type="number" {...field} className="pl-8"/>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="temperature"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Temperature (°C)</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -339,19 +374,7 @@ export function FarmManagement() {
                       )}
                     />
                   </div>
-                   <FormField
-                      control={form.control}
-                      name="temperature"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Temperature (°C)</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  
                   <div>
                     <h4 className="text-sm font-medium mb-2">
                       {t('farmManagement.nutrientsLabel')}

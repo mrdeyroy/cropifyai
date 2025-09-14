@@ -56,6 +56,7 @@ const generateCropSuggestionsPrompt = ai.definePrompt({
   Use the 'getMarketData' tool to fetch the latest market prices for the farm's location to help your decision.
 
   Consider the following information about the farm:
+  - Budget: ₹{{{budget}}}
   - Soil Type: {{{soilType}}}
   - Location: {{{location}}}
   - Weather Data Link: {{{weatherDataLink}}}
@@ -66,14 +67,14 @@ const generateCropSuggestionsPrompt = ai.definePrompt({
   - Past Crop Rotation Data: {{{pastCropRotationData}}}
   - Weather Forecast: {{{weatherForecast}}}
 
-  Based on the farm's conditions and the live market data you fetch, suggest the most suitable crops for the farmer to plant. 
+  Based on the farm's conditions, the farmer's budget, and the live market data you fetch, suggest the most suitable crops for the farmer to plant. 
   For each crop, provide the following details:
   - cropName: The name of the crop.
   - yieldForecast: The estimated yield in an appropriate unit (e.g., quintals/acre).
   - profitMargin: An estimated profit margin percentage.
   - sustainabilityScore: A score from 0 to 100 representing how sustainable the crop is for the given conditions (considering water usage, soil health impact, etc.).
   
-  Also, provide a short, overall explanation of your reasoning for the suggestions.
+  Also, provide a short, overall explanation of your reasoning for the suggestions, making sure to reference how the budget was considered.
   Ensure the crop suggestions are provided in an array of objects.
   `,
 });
