@@ -323,7 +323,7 @@ export function FarmManagement() {
                           <FormControl>
                             <div className="relative">
                                <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                               <Input type="number" {...field} className="pl-8"/>
+                               <Input type="number" {...field} className="pl-8" placeholder="e.g. 50000"/>
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -337,7 +337,7 @@ export function FarmManagement() {
                         <FormItem>
                           <FormLabel>Temperature (°C)</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Input type="number" {...field} placeholder="e.g. 25" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -352,7 +352,7 @@ export function FarmManagement() {
                         <FormItem>
                           <FormLabel>{t('farmManagement.phLabel')}</FormLabel>
                           <FormControl>
-                            <Input type="number" step="0.1" {...field} />
+                            <Input type="number" step="0.1" {...field} placeholder="e.g. 6.8" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -367,7 +367,7 @@ export function FarmManagement() {
                             {t('farmManagement.moistureLabel')}
                           </FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Input type="number" {...field} placeholder="e.g. 35" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -387,7 +387,7 @@ export function FarmManagement() {
                           <FormItem>
                             <FormLabel>N</FormLabel>
                             <FormControl>
-                              <Input type="number" {...field} />
+                              <Input type="number" {...field} placeholder="e.g. 120" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -400,7 +400,7 @@ export function FarmManagement() {
                           <FormItem>
                             <FormLabel>P</FormLabel>
                             <FormControl>
-                              <Input type="number" {...field} />
+                              <Input type="number" {...field} placeholder="e.g. 50" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -413,7 +413,7 @@ export function FarmManagement() {
                           <FormItem>
                             <FormLabel>K</FormLabel>
                             <FormControl>
-                              <Input type="number" {...field} />
+                              <Input type="number" {...field} placeholder="e.g. 80" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
