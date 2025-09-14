@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { marketPrices } from '@/lib/data';
-import { ArrowDown, ArrowUp } from 'lucide-react';
+import { ArrowDown, ArrowUp, IndianRupee } from 'lucide-react';
 import { MarketTrendChart } from '@/components/market-trend-chart';
 import type { MarketPrice } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -76,8 +76,11 @@ export default function MarketWatchPage() {
                       )}
                     >
                       <TableCell className="font-medium">{item.crop}</TableCell>
-                      <TableCell className="text-right font-mono">
-                        ₹{item.price.toFixed(2)}
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end font-mono">
+                          <IndianRupee className="h-4 w-4 mr-1" />
+                          {item.price.toFixed(2)}
+                        </div>
                       </TableCell>
                       <TableCell
                         className={`text-right font-mono ${

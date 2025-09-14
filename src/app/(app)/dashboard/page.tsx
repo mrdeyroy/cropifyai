@@ -20,6 +20,7 @@ import {
   Sun,
   Wind,
   Loader2,
+  IndianRupee,
 } from 'lucide-react';
 import Link from 'next/link';
 import { marketPrices, indianCities } from '@/lib/data';
@@ -189,10 +190,13 @@ export default function DashboardPage() {
                   <TableRow key={item.crop}>
                     <TableCell className="font-medium">{item.crop}</TableCell>
                     <TableCell className="text-right">
-                      ₹{item.price.toFixed(2)}
+                      <div className="flex items-center justify-end font-mono">
+                        <IndianRupee className="h-4 w-4 mr-1" />
+                        {item.price.toFixed(2)}
+                      </div>
                     </TableCell>
                     <TableCell
-                      className={`flex items-center justify-end gap-1 ${
+                      className={`flex items-center justify-end gap-1 font-mono ${
                         item.change > 0 ? 'text-green-600' : 'text-red-600'
                       }`}
                     >

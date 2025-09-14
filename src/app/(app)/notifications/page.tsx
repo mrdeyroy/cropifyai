@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, CloudRain, Info, Tag, Sun } from 'lucide-react';
+import { Bell, CloudRain, Info, Tag, IndianRupee } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 
 const notifications = {
@@ -97,6 +97,23 @@ type Notification = {
     time: string;
 };
 
+// Function to replace the Rupee symbol with the icon component
+const formatMessage = (message: string) => {
+    const parts = message.split(/(₹\d+)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('₹')) {
+        const amount = part.substring(1);
+        return (
+          <span key={index} className="inline-flex items-center">
+            <IndianRupee className="h-4 w-4" />{amount}
+          </span>
+        );
+      }
+      return part;
+    });
+};
+
+
 function NotificationItem({ notification }: { notification: Notification }) {
   return (
     <div className="flex items-start gap-4 p-4 border-b">
@@ -108,7 +125,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
           <p className="font-semibold">{notification.title}</p>
           <p className="text-xs text-muted-foreground">{notification.time}</p>
         </div>
-        <p className="text-sm text-muted-foreground">{notification.message}</p>
+        <p className="text-sm text-muted-foreground">{formatMessage(notification.message)}</p>
       </div>
     </div>
   );

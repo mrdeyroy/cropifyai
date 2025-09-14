@@ -6,6 +6,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
+import { IndianRupee } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 const chartConfig = {
@@ -47,7 +48,16 @@ export function MarketTrendChart({ data }: MarketTrendChartProps) {
         />
         <ChartTooltip
           cursor={false}
-          content={<ChartTooltipContent indicator="dot" />}
+          content={<ChartTooltipContent 
+            indicator="dot" 
+            formatter={(value, name) => (
+              <div className="flex items-center">
+                <span className="capitalize mr-2">{name}:</span>
+                <IndianRupee className="h-4 w-4 mr-1" />
+                <span>{value}</span>
+              </div>
+            )}
+          />}
         />
         <Area
           dataKey="price"
