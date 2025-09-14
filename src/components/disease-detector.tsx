@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import {
   Card,
@@ -17,7 +17,15 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Stethoscope, Loader2, Bot, Pill, Shield } from 'lucide-react';
+import {
+  Stethoscope,
+  Loader2,
+  Bot,
+  Pill,
+  Shield,
+  Upload,
+  Camera,
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { identifyCropDisease } from '@/ai/flows/identify-crop-disease';
 import type { DiseaseIdentification } from '@/lib/types';
@@ -37,12 +45,65 @@ export function DiseaseDetector() {
   const [isAnalyzing, startAnalyzingTransition] = useTransition();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState(false);
+  const [activeTab, setActiveTab] = useState('upload');
+
+  useEffect(() => {
+    if (activeTab === 'camera') {
+      const getCameraPermission = async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          setHasCameraPermission(true);
+
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        } catch (error) {
+          console.error('Error accessing camera:', error);
+          setHasCameraPermission(false);
+          toast({
+            variant: 'destructive',
+            title: 'Camera Access Denied',
+            description:
+              'Please enable camera permissions in your browser settings to use this feature.',
+          });
+        }
+      };
+      getCameraPermission();
+    } else {
+      // Stop camera stream when switching tabs
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach((track) => track.stop());
+      }
+    }
+  }, [activeTab, toast]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       toDataUri(file).then(setImagePreview);
       setResult(null);
+    }
+  };
+
+  const handleCapture = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        const dataUri = canvas.toDataURL('image/jpeg');
+        setImagePreview(dataUri);
+        setResult(null);
+      }
     }
   };
 
@@ -77,24 +138,77 @@ export function DiseaseDetector() {
   return (
     <div className="grid gap-8 md:grid-cols-2">
       <Card>
-        <CardHeader>
-          <CardTitle>{t('diseaseDetector.uploadTitle')}</CardTitle>
-          <CardDescription>
-            {t('diseaseDetector.uploadDescription')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="picture">{t('diseaseDetector.pictureLabel')}</Label>
-            <Input
-              id="picture"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-          </div>
-          {imagePreview && (
-            <div className="relative aspect-video w-full overflow-hidden rounded-md border">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <CardHeader>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="upload">
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Image
+              </TabsTrigger>
+              <TabsTrigger value="camera">
+                <Camera className="mr-2 h-4 w-4" />
+                Use Camera
+              </TabsTrigger>
+            </TabsList>
+          </CardHeader>
+          <TabsContent value="upload">
+            <CardContent className="space-y-4">
+              <CardDescription>
+                {t('diseaseDetector.uploadDescription')}
+              </CardDescription>
+              <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="picture">
+                  {t('diseaseDetector.pictureLabel')}
+                </Label>
+                <Input
+                  id="picture"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+              </div>
+            </CardContent>
+          </TabsContent>
+          <TabsContent value="camera">
+            <CardContent className="space-y-4">
+              <CardDescription>
+                Position the affected crop in front of the camera and capture a
+                photo.
+              </CardDescription>
+              <div className="relative aspect-video w-full overflow-hidden rounded-md border bg-muted">
+                <video
+                  ref={videoRef}
+                  className="w-full aspect-video rounded-md"
+                  autoPlay
+                  muted
+                  playsInline
+                />
+                <canvas ref={canvasRef} className="hidden" />
+                {!hasCameraPermission && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <Camera className="h-12 w-12 text-muted-foreground" />
+                    <p className="mt-2 text-muted-foreground">
+                      Waiting for camera permission...
+                    </p>
+                  </div>
+                )}
+              </div>
+              <Button
+                onClick={handleCapture}
+                disabled={!hasCameraPermission}
+                className="w-full"
+              >
+                <Camera className="mr-2 h-4 w-4" />
+                Capture Photo
+              </Button>
+            </CardContent>
+          </TabsContent>
+        </Tabs>
+
+        {imagePreview && (
+          <CardContent>
+            <Label>Preview</Label>
+            <div className="relative aspect-video w-full overflow-hidden rounded-md border mt-2">
               <Image
                 src={imagePreview}
                 alt="Crop preview"
@@ -103,8 +217,9 @@ export function DiseaseDetector() {
                 data-ai-hint="diseased leaf"
               />
             </div>
-          )}
-        </CardContent>
+          </CardContent>
+        )}
+
         <CardFooter>
           <Button
             onClick={handleAnalyze}
