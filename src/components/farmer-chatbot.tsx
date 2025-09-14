@@ -29,7 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Bot,
@@ -44,6 +44,7 @@ import {
   Edit,
   MoreVertical,
   X,
+  Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -502,3 +503,5 @@ export function FarmerChatbot() {
     </>
   );
 }
+
+    
