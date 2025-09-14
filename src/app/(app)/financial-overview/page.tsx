@@ -40,53 +40,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
-const initialTransactions: Transaction[] = [
-  {
-    id: '1',
-    date: '2024-05-01',
-    type: 'expense',
-    category: 'seeds',
-    description: 'Wheat seeds for 5 acres',
-    amount: 12000,
-  },
-  {
-    id: '2',
-    date: '2024-05-15',
-    type: 'expense',
-    category: 'fertilizer',
-    description: 'NPK Fertilizer',
-    amount: 7500,
-  },
-  {
-    id: '3',
-    date: '2024-06-10',
-    type: 'expense',
-    category: 'labor',
-    description: 'Sowing labor',
-    amount: 8000,
-  },
-  {
-    id: '4',
-    date: '2024-09-20',
-    type: 'income',
-    category: 'sales',
-    description: 'Sale of Wheat - 50 quintals',
-    amount: 110000,
-  },
-  {
-    id: '5',
-    date: '2024-09-25',
-    type: 'expense',
-    category: 'transport',
-    description: 'Transport to market',
-    amount: 3500,
-  },
-];
-
 export default function FinancialOverviewPage() {
   const { t } = useLanguage();
-  const [transactions, setTransactions] =
-    useState<Transaction[]>(initialTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   const calculations = transactions.reduce(
@@ -229,43 +185,51 @@ export default function FinancialOverviewPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions
-                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                    .map((transaction) => (
-                      <TableRow key={transaction.id}>
-                        <TableCell className="text-muted-foreground">
-                          {format(new Date(transaction.date), 'dd MMM, yyyy')}
-                        </TableCell>
-                        <TableCell className="font-medium">{transaction.description}</TableCell>
-                        <TableCell>
-                           <Badge
-                            variant={
-                              transaction.type === 'income' ? 'default' : 'secondary'
-                            }
-                            className={
-                                transaction.type === 'income' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : ''
-                            }
+                  {transactions.length > 0 ? (
+                    transactions
+                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                      .map((transaction) => (
+                        <TableRow key={transaction.id}>
+                          <TableCell className="text-muted-foreground">
+                            {format(new Date(transaction.date), 'dd MMM, yyyy')}
+                          </TableCell>
+                          <TableCell className="font-medium">{transaction.description}</TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                transaction.type === 'income' ? 'default' : 'secondary'
+                              }
+                              className={
+                                  transaction.type === 'income' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : ''
+                              }
+                            >
+                              {t(`expenseCategories.${transaction.category}`)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell
+                            className={`text-right font-mono font-semibold flex items-center justify-end gap-1 ${
+                              transaction.type === 'income'
+                                ? 'text-green-600'
+                                : 'text-red-600'
+                            }`}
                           >
-                            {t(`expenseCategories.${transaction.category}`)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell
-                          className={`text-right font-mono font-semibold flex items-center justify-end gap-1 ${
-                            transaction.type === 'income'
-                              ? 'text-green-600'
-                              : 'text-red-600'
-                          }`}
-                        >
-                           {transaction.type === 'income' ? (
-                                <ArrowUpRight className="h-4 w-4" />
-                            ) : (
-                                <ArrowDownRight className="h-4 w-4" />
-                            )}
-                          <IndianRupee className="h-4 w-4" />
-                          {transaction.amount.toLocaleString('en-IN')}
-                        </TableCell>
-                      </TableRow>
-                  ))}
+                            {transaction.type === 'income' ? (
+                                  <ArrowUpRight className="h-4 w-4" />
+                              ) : (
+                                  <ArrowDownRight className="h-4 w-4" />
+                              )}
+                            <IndianRupee className="h-4 w-4" />
+                            {transaction.amount.toLocaleString('en-IN')}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                        No transactions yet.
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -277,7 +241,13 @@ export default function FinancialOverviewPage() {
               <CardTitle>{t('financialOverviewPage.expenseBreakdown')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ExpenseChart data={expenseChartData} />
+              {expenseChartData.length > 0 ? (
+                <ExpenseChart data={expenseChartData} />
+              ) : (
+                <div className="flex items-center justify-center h-full text-center text-muted-foreground p-8">
+                  <p>No expense data to display.</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

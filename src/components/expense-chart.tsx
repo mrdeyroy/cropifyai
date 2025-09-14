@@ -26,19 +26,28 @@ type ExpenseChartProps = {
 export function ExpenseChart({ data }: ExpenseChartProps) {
   const chartConfig: ChartConfig = useMemo(() => {
     const config: ChartConfig = {};
-    data.forEach((item, index) => {
-        config[item.name] = {
-            label: item.label,
-            color: chartColors[index % chartColors.length]
-        };
-    });
+    if (data) {
+        data.forEach((item, index) => {
+            config[item.name] = {
+                label: item.label,
+                color: chartColors[index % chartColors.length]
+            };
+        });
+    }
     return config;
   }, [data]);
   
   const totalValue = useMemo(() => {
-    return data.reduce((acc, curr) => acc + curr.value, 0);
+    return data ? data.reduce((acc, curr) => acc + curr.value, 0) : 0;
   }, [data]);
 
+  if (!data || data.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">
+            No data to display
+        </div>
+      )
+  }
 
   return (
     <ChartContainer
