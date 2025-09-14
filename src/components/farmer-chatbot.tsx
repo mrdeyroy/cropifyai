@@ -185,7 +185,16 @@ export function FarmerChatbot() {
   }
 
   const handleTextToSpeech = async (messageId: string, text: string) => {
-      // Stop any currently playing audio
+      // Stop currently playing audio if the same button is clicked again
+      if (audioRef.current && audioStates[messageId] === 'playing') {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0; // Reset audio
+        setAudioStates(prev => ({ ...prev, [messageId]: 'idle' }));
+        audioRef.current = null;
+        return;
+      }
+      
+      // Stop any currently playing audio from other messages
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = '';
