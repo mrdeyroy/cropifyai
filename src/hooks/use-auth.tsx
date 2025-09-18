@@ -4,7 +4,6 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { onAuthStateChanged, User, updateProfile as firebaseUpdateProfile } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter, usePathname } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 
 type AuthContextType = {
   user: User | null;
@@ -15,14 +14,10 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const protectedRoutes = ['/dashboard', '/farms', '/disease-detection', '/market-watch', '/settings', '/financial-overview', '/notifications'];
-const publicRoutes = ['/login', '/signup'];
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -33,48 +28,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (!loading) {
-      const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-      const isPublicRoute = publicRoutes.includes(pathname);
-
-      if (!user && isProtectedRoute) {
-        router.push('/login');
-      }
-      if (user && isPublicRoute) {
-        router.push('/dashboard');
-      }
-    }
-  }, [user, loading, pathname, router]);
-
   const logout = async () => {
     await auth.signOut();
-    router.push('/login');
+    router.push('/landing?showLogin=true');
   };
   
   const updateProfile = async (profile: { displayName?: string; photoURL?: string; }) => {
     if (auth.currentUser) {
         await firebaseUpdateProfile(auth.currentUser, profile);
-        // Manually update the user state to ensure UI reflects changes immediately
-        setUser(prevUser => {
-          if (!prevUser) return null;
-          // The auth.currentUser object is the same reference, so we need to create a new one
-          // to trigger re-renders. We also merge the new profile data.
-          const newUser = { ...auth.currentUser, ...profile } as User;
-          
-          return newUser;
-        });
+        // This is a workaround to force re-render with updated user info
+        setUser(auth.currentUser ? { ...auth.currentUser } : null);
     }
   };
-
-  if (loading || (!user && protectedRoutes.some(route => pathname.startsWith(route)))) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin" />
-      </div>
-    );
-  }
-
+  
   return (
     <AuthContext.Provider value={{ user, loading, logout, updateProfile }}>
       {children}

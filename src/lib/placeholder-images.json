@@ -5,6 +5,12 @@
       "description": "A leaf showing signs of disease, used for the crop disease detection feature.",
       "imageUrl": "https://picsum.photos/seed/leafdisease/800/600",
       "imageHint": "diseased leaf"
+    },
+    {
+      "id": "hero-background",
+      "description": "A vibrant background image showing a blend of modern agriculture and technology, for the landing page hero section.",
+      "imageUrl": "https://picsum.photos/seed/cropifyai/1920/1080",
+      "imageHint": "modern agriculture technology"
     }
   ]
 }

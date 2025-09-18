@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 import { cn } from '@/lib/utils';
-import { ThemeProvider } from '@/components/theme-provider';
+import { Providers } from '@/components/providers';
 
 export const metadata: Metadata = {
   title: 'CropifyAI',
@@ -23,15 +23,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
       </head>
       <body className={cn('font-body antialiased min-h-screen bg-background')}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <Providers>
+            {children}
+            <Toaster />
+        </Providers>
       </body>
     </html>
   );

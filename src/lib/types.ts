@@ -59,6 +59,7 @@ export const IdentifyCropDiseaseInputSchema = z.object({
 export type IdentifyCropDiseaseInput = z.infer<typeof IdentifyCropDiseaseInputSchema>;
 
 export const IdentifyCropDiseaseOutputSchema = z.object({
+  isCrop: z.boolean().describe('Whether or not the image contains a crop or plant.'),
   diseaseIdentification: z.array(
     z.object({
       diseaseName: z.string().describe('The name of the identified disease.'),
@@ -68,7 +69,7 @@ export const IdentifyCropDiseaseOutputSchema = z.object({
       treatment: z.array(z.string()).describe('Recommended treatment steps.'),
       prevention: z.array(z.string()).describe('Recommended prevention steps.'),
     })
-  ).describe('List of identified diseases with confidence scores.'),
+  ).describe('List of identified diseases with confidence scores. Empty if the crop is healthy or not a crop.'),
 });
 export type IdentifyCropDiseaseOutput = z.infer<typeof IdentifyCropDiseaseOutputSchema>;
 

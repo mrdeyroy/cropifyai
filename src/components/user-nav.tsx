@@ -16,16 +16,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Globe, LogOut, User as UserIcon, Bell } from 'lucide-react';
+import { Globe, LogOut, User as UserIcon, Bell, LayoutGrid } from 'lucide-react';
 import { LanguageSelector } from '@/components/language-selector';
 import { useLanguage } from '@/hooks/use-language';
 import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export function UserNav() {
   const { t } = useLanguage();
   const { user, logout } = useAuth();
   const [isLanguageSelectorOpen, setLanguageSelectorOpen] = useState(false);
+  const pathname = usePathname();
+  
+  const isLandingPage = pathname === '/landing' || pathname === '/';
 
   const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -45,12 +49,14 @@ export function UserNav() {
   return (
     <>
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/notifications">
-            <Bell className="h-5 w-5" />
-            <span className="sr-only">Notifications</span>
-          </Link>
-        </Button>
+        {!isLandingPage && (
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/notifications">
+              <Bell className="h-5 w-5" />
+              <span className="sr-only">Notifications</span>
+            </Link>
+          </Button>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -71,6 +77,14 @@ export function UserNav() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+               {isLandingPage && (
+                 <DropdownMenuItem asChild>
+                    <Link href="/dashboard">
+                      <LayoutGrid className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Link>
+                 </DropdownMenuItem>
+               )}
               <DropdownMenuItem asChild>
                 <Link href="/settings">
                   <UserIcon className="mr-2 h-4 w-4" />

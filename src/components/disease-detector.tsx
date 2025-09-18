@@ -25,10 +25,12 @@ import {
   Shield,
   Upload,
   Camera,
+  Trees,
+  XCircle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { identifyCropDisease } from '@/ai/flows/identify-crop-disease';
-import type { DiseaseIdentification } from '@/lib/types';
+import type { IdentifyCropDiseaseOutput } from '@/lib/types';
 import { useLanguage } from '@/hooks/use-language';
 
 const toDataUri = (file: File): Promise<string> =>
@@ -41,7 +43,7 @@ const toDataUri = (file: File): Promise<string> =>
 
 export function DiseaseDetector() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [result, setResult] = useState<DiseaseIdentification[] | null>(null);
+  const [result, setResult] = useState<IdentifyCropDiseaseOutput | null>(null);
   const [isAnalyzing, startAnalyzingTransition] = useTransition();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -123,7 +125,7 @@ export function DiseaseDetector() {
           photoDataUri: imagePreview,
         });
 
-        setResult(aiResult.diseaseIdentification);
+        setResult(aiResult);
       } catch (error) {
         console.error('Failed to analyze disease:', error);
         toast({
@@ -263,9 +265,17 @@ export function DiseaseDetector() {
                 {t('diseaseDetector.awaitingAnalysisDescription')}
               </p>
             </div>
-          ) : result.length > 0 ? (
+          ) : result.isCrop === false ? (
+              <Alert variant="destructive">
+                <XCircle className="h-4 w-4" />
+                <AlertTitle>No Crop Detected</AlertTitle>
+                <AlertDescription>
+                  The AI could not detect a crop or plant in the image. Please try again with a clearer picture of a plant.
+                </AlertDescription>
+              </Alert>
+          ) : result.diseaseIdentification.length > 0 ? (
             <div className="space-y-6">
-              {result.map((disease, index) => (
+              {result.diseaseIdentification.map((disease, index) => (
                 <div key={index}>
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-xl font-semibold text-destructive">
@@ -311,6 +321,7 @@ export function DiseaseDetector() {
             </div>
           ) : (
             <Alert>
+              <Trees className="h-4 w-4" />
               <AlertTitle>{t('diseaseDetector.noDiseaseTitle')}</AlertTitle>
               <AlertDescription>
                 {t('diseaseDetector.noDiseaseDescription')}

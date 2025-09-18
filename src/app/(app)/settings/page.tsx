@@ -30,19 +30,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  useFormField,
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useEffect, useState, useRef } from 'react';
 import { useTheme } from 'next-themes';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Camera, Loader2 } from 'lucide-react';
+import { Camera, Loader2, Edit, Check, X } from 'lucide-react';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth } from '@/lib/firebase';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
-  email: z.string().email('Please enter a valid email address.').optional(),
 });
 
 function AvatarUpload() {
@@ -125,10 +125,11 @@ function AvatarUpload() {
 
 export default function SettingsPage() {
   const { t, language, setLanguage } = useLanguage();
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, loading } = useAuth();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
 
   const [priceAlerts, setPriceAlerts] = useState(false);
   const [weatherAlerts, setWeatherAlerts] = useState(true);
@@ -137,7 +138,6 @@ export default function SettingsPage() {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: user?.displayName || '',
-      email: user?.email || '',
     },
   });
 
@@ -149,7 +149,6 @@ export default function SettingsPage() {
     if (user) {
       form.reset({
         name: user.displayName || '',
-        email: user.email || '',
       });
     }
   }, [user, form]);
@@ -161,6 +160,7 @@ export default function SettingsPage() {
         title: 'Profile Saved',
         description: 'Your changes have been saved successfully.',
       });
+      setIsEditingName(false);
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -168,6 +168,11 @@ export default function SettingsPage() {
         description: 'Failed to update profile. Please try again.',
       });
     }
+  };
+
+  const handleCancelEdit = () => {
+    form.reset({ name: user?.displayName || '' });
+    setIsEditingName(false);
   };
 
   const handleSavePreferences = () => {
@@ -179,7 +184,7 @@ export default function SettingsPage() {
     });
   };
   
-  if (!mounted || !user) {
+  if (!mounted || !user || loading) {
     return null;
   }
 
@@ -192,19 +197,19 @@ export default function SettingsPage() {
         <p className="text-muted-foreground">{t('settingsPage.description')}</p>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onProfileSubmit)}>
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('settingsPage.profileTitle')}</CardTitle>
-              <CardDescription>
-                {t('settingsPage.profileDescription')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-6">
-                <AvatarUpload />
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('settingsPage.profileTitle')}</CardTitle>
+          <CardDescription>
+            {t('settingsPage.profileDescription')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-6">
+            <AvatarUpload />
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onProfileSubmit)}>
                   <FormField
                     control={form.control}
                     name="name"
@@ -212,34 +217,44 @@ export default function SettingsPage() {
                       <FormItem>
                         <FormLabel>{t('settingsPage.nameLabel')}</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <div className="flex items-center gap-2">
+                            {isEditingName ? (
+                              <div className="w-full space-y-2">
+                                <Input {...field} />
+                                <div className="flex gap-2">
+                                    <Button size="sm" type="submit">
+                                        Save
+                                    </Button>
+                                    <Button size="sm" variant="ghost" type="button" onClick={handleCancelEdit}>
+                                        Cancel
+                                    </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <p className="flex-1 py-2">{field.value}</p>
+                                <Button variant="outline" type="button" onClick={() => setIsEditingName(true)}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Edit
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('settingsPage.emailLabel')}</FormLabel>
-                        <FormControl>
-                          <Input type="email" {...field} disabled />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                </form>
+              </Form>
+              <div className="space-y-2">
+                  <Label htmlFor="email">{t('settingsPage.emailLabel')}</Label>
+                  <Input type="email" id="email" value={user?.email || ''} disabled />
               </div>
-            </CardContent>
-            <CardFooter>
-              <Button type="submit">{t('settingsPage.saveChanges')}</Button>
-            </CardFooter>
-          </Card>
-        </form>
-      </Form>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
