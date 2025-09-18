@@ -4,8 +4,7 @@ import { useState, useTransition, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { farms as initialFarms, indianCities } from '@/lib/data';
-import type { Farm } from '@/lib/types';
+import { indianCities } from '@/lib/data';
 import {
   Card,
   CardContent,
@@ -47,9 +46,9 @@ import { generateCropSuggestions } from '@/ai/flows/generate-crop-suggestions';
 import type { GenerateCropSuggestionsOutput } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/hooks/use-language';
-import { Label } from '@/components/ui/label';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { Logo } from './icons';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Farm name must be at least 2 characters.'),
@@ -65,56 +64,27 @@ const formSchema = z.object({
 });
 
 export function FarmManagement() {
-  const [farms, setFarms] = useState<Farm[]>(initialFarms);
-  const [selectedFarmId, setSelectedFarmId] = useState<string>(
-    initialFarms[0].id
-  );
   const [suggestions, setSuggestions] =
     useState<GenerateCropSuggestionsOutput | null>(null);
   const [isGenerating, startGeneratingTransition] = useTransition();
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const selectedFarm = farms.find((f) => f.id === selectedFarmId) || farms[0];
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: selectedFarm.name,
-      location: selectedFarm.location,
-      soilType: selectedFarm.soilType,
-      ph: selectedFarm.ph,
-      moisture: selectedFarm.moisture,
-      temperature: selectedFarm.temperature,
-      nitrogen: selectedFarm.nutrients.nitrogen,
-      phosphorus: selectedFarm.nutrients.phosphorus,
-      potassium: selectedFarm.nutrients.potassium,
+      name: '',
+      location: '',
+      soilType: 'Loam',
+      ph: 7.0,
+      moisture: 50,
+      temperature: 25,
+      nitrogen: 100,
+      phosphorus: 50,
+      potassium: 50,
       budget: 50000,
     },
   });
-
-  useEffect(() => {
-    const farm = farms.find((f) => f.id === selectedFarmId);
-    if (farm) {
-      form.reset({
-        name: farm.name,
-        location: farm.location,
-        soilType: farm.soilType,
-        ph: farm.ph,
-        moisture: farm.moisture,
-        temperature: farm.temperature,
-        nitrogen: farm.nutrients.nitrogen,
-        phosphorus: farm.nutrients.phosphorus,
-        potassium: farm.nutrients.potassium,
-        budget: 50000, // Reset budget on farm change
-      });
-      setSuggestions(null);
-    }
-  }, [selectedFarmId, farms, form]);
-
-  const handleFarmChange = (id: string) => {
-    setSelectedFarmId(id);
-  };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     startGeneratingTransition(async () => {
@@ -148,22 +118,68 @@ export function FarmManagement() {
     if (!suggestions) return;
 
     const doc = new jsPDF();
-    
-    // Add header
-    doc.setFontSize(20);
-    doc.text('AI Crop Recommendations', 14, 22);
-    doc.setFontSize(12);
-    doc.text(`For Farm: ${selectedFarm.name}`, 14, 30);
-    doc.text(`Location: ${selectedFarm.location}`, 14, 36);
-    
-    // Add Reasoning
-    doc.setFontSize(14);
-    doc.text('AI Reasoning', 14, 50);
-    const reasoningLines = doc.splitTextToSize(suggestions.reasoning, 180);
+    const formValues = form.getValues();
+
+    // Header
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(41, 128, 185); // Primary color
+    doc.text('CropifyAI', 14, 22);
     doc.setFontSize(10);
-    doc.text(reasoningLines, 14, 58);
+    doc.setTextColor(150);
+    doc.setFont('helvetica', 'normal');
+    doc.text('AI Crop Recommendation Report', 14, 28);
     
-    // Add Crop Suggestions Table
+    // Line Separator
+    doc.setDrawColor(221, 221, 221); // Border color
+    doc.line(14, 32, 196, 32);
+
+    // Farm Details Section
+    doc.setFontSize(16);
+    doc.setTextColor(40);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Farm & Analysis Details', 14, 42);
+
+    const farmDetailsContent = [
+      [`Farm Name:`, formValues.name],
+      [`Location:`, formValues.location],
+      [`Soil Type:`, formValues.soilType],
+      [`Budget:`, `₹${formValues.budget.toLocaleString('en-IN')}`],
+      [`Temperature:`, `${formValues.temperature}°C`],
+      [`Soil pH:`, `${formValues.ph}`],
+      [`Moisture:`, `${formValues.moisture}%`],
+      [`Nutrients (N-P-K):`, `${formValues.nitrogen}-${formValues.phosphorus}-${formValues.potassium} ppm`],
+    ];
+    (doc as any).autoTable({
+        body: farmDetailsContent,
+        startY: 48,
+        theme: 'plain',
+        styles: { fontSize: 10, cellPadding: 1.5 },
+        columnStyles: {
+            0: { fontStyle: 'bold', textColor: 40 },
+            1: { textColor: 80 }
+        }
+    });
+
+    // AI Reasoning Section
+    let lastY = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(40);
+    doc.text('AI Reasoning & Summary', 14, lastY);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(80);
+    const reasoningLines = doc.splitTextToSize(suggestions.reasoning, 180);
+    doc.text(reasoningLines, 14, lastY + 6);
+    
+    // Crop Suggestions Table
+    lastY = doc.getTextDimensions(reasoningLines).h + lastY + 10;
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(40);
+    doc.text('Recommended Crops', 14, lastY);
+
     const tableColumn = ["Crop", "Yield Forecast", "Profit Margin (%)", "Sustainability Score"];
     const tableRows: (string|number)[][] = [];
 
@@ -180,12 +196,34 @@ export function FarmManagement() {
     (doc as any).autoTable({
       head: [tableColumn],
       body: tableRows,
-      startY: 75,
-      headStyles: { fillColor: [41, 128, 185] },
-      margin: { top: 75 }
+      startY: lastY + 6,
+      headStyles: { 
+          fillColor: [41, 128, 185], // Primary color
+          textColor: 255, 
+          fontStyle: 'bold' 
+      },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      didDrawCell: (data: any) => {
+        if (data.column.index === 3 && data.cell.section === 'body') {
+            const score = Number(data.cell.text[0]);
+            const barWidth = (data.cell.width - 8) * (score / 100);
+            doc.setFillColor(41, 128, 185); // Primary color
+            doc.rect(data.cell.x + 4, data.cell.y + 4, barWidth, 4, 'F');
+        }
+      }
     });
 
-    const fileName = `crop_recommendations_${selectedFarm.name.replace(/\s+/g, '_').toLowerCase()}.pdf`;
+    // Footer
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(`Page ${i} of ${pageCount}`, 196, 285, { align: 'right' });
+        doc.text(`Report generated on ${new Date().toLocaleDateString()}`, 14, 285);
+    }
+    
+    const fileName = `crop_recommendations_${formValues.name.replace(/\s+/g, '_').toLowerCase()}.pdf`;
     doc.save(fileName);
   };
 
@@ -196,9 +234,7 @@ export function FarmManagement() {
           <CardHeader>
             <CardTitle>{t('farmManagement.farmDetailsTitle')}</CardTitle>
             <CardDescription>
-              {t('farmManagement.farmDetailsDescription', {
-                farmName: selectedFarm.name,
-              })}
+              Enter your farm's details to get AI-powered crop recommendations.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -208,25 +244,6 @@ export function FarmManagement() {
                 className="space-y-6"
               >
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="farm-select">Select a Farm</Label>
-                    <Select
-                      value={selectedFarmId}
-                      onValueChange={handleFarmChange}
-                    >
-                      <SelectTrigger id="farm-select">
-                        <SelectValue placeholder="Select a farm" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {farms.map((farm) => (
-                          <SelectItem key={farm.id} value={farm.id}>
-                            {farm.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
                   <FormField
                     control={form.control}
                     name="name"
@@ -450,9 +467,7 @@ export function FarmManagement() {
               <div>
                 <CardTitle>{t('farmManagement.recommendationsTitle')}</CardTitle>
                 <CardDescription>
-                  {t('farmManagement.recommendationsDescription', {
-                    farmName: selectedFarm.name,
-                  })}
+                  AI-powered suggestions based on your farm's data.
                 </CardDescription>
               </div>
               {suggestions && (
