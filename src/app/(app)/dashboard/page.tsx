@@ -176,43 +176,45 @@ export default function DashboardPage() {
             </Button>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('dashboard.marketWatchTitle')}</CardTitle>
-            <CardDescription>
-              {t('dashboard.marketWatchDescription')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableBody>
-                {marketPrices.slice(0, 3).map((item) => (
-                  <TableRow key={item.crop}>
-                    <TableCell className="font-medium">{item.crop}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end font-mono">
-                        <IndianRupee className="h-4 w-4 mr-1" />
-                        {item.price.toFixed(2)}
-                      </div>
-                    </TableCell>
-                    <TableCell
-                      className={`flex items-center justify-end gap-1 font-mono ${
-                        item.change > 0 ? 'text-green-600' : 'text-red-600'
-                      }`}
-                    >
-                      {item.change > 0 ? (
-                        <ArrowUp className="h-4 w-4" />
-                      ) : (
-                        <ArrowDown className="h-4 w-4" />
-                      )}
-                      {Math.abs(item.change)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <Link href="/market-watch" className="block hover:shadow-lg transition-shadow rounded-lg">
+            <Card className="h-full">
+            <CardHeader>
+                <CardTitle>{t('dashboard.marketWatchTitle')}</CardTitle>
+                <CardDescription>
+                {t('dashboard.marketWatchDescription')}
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                <TableBody>
+                    {marketPrices.slice(0, 3).map((item) => (
+                    <TableRow key={item.crop}>
+                        <TableCell className="font-medium">{item.crop}</TableCell>
+                        <TableCell className="text-right">
+                        <div className="flex items-center justify-end font-mono">
+                            <IndianRupee className="h-4 w-4 mr-1" />
+                            {item.price.toFixed(2)}
+                        </div>
+                        </TableCell>
+                        <TableCell
+                        className={`flex items-center justify-end gap-1 font-mono ${
+                            item.change > 0 ? 'text-green-600' : 'text-red-600'
+                        }`}
+                        >
+                        {item.change > 0 ? (
+                            <ArrowUp className="h-4 w-4" />
+                        ) : (
+                            <ArrowDown className="h-4 w-4" />
+                        )}
+                        {Math.abs(item.change)}
+                        </TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+                </Table>
+            </CardContent>
+            </Card>
+        </Link>
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle>{t('dashboard.yieldProjectionTitle')}</CardTitle>

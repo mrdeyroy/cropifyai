@@ -28,7 +28,7 @@ const getMockWeather = (location: string): WeatherData => {
 export async function getWeather(location: string): Promise<WeatherData> {
   const apiKey = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
 
-  if (!apiKey || apiKey === "your_weather_api_key_here") {
+  if (!apiKey || apiKey === "NEXT_PUBLIC_WEATHER_API_KEY") {
     console.warn("OpenWeatherMap API key not found. Using mock data.");
     return getMockWeather(location);
   }

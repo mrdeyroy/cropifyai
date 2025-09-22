@@ -27,6 +27,7 @@ import {
   Camera,
   Trees,
   XCircle,
+  RotateCcw,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { identifyCropDisease } from '@/ai/flows/identify-crop-disease';
@@ -40,6 +41,13 @@ const toDataUri = (file: File): Promise<string> =>
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+  
+const DISEASE_DETECTOR_STORAGE_KEY = 'diseaseDetectorState';
+
+type StoredDiseaseState = {
+  imagePreview: string | null;
+  result: IdentifyCropDiseaseOutput | null;
+}
 
 export function DiseaseDetector() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -51,6 +59,31 @@ export function DiseaseDetector() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const [activeTab, setActiveTab] = useState('upload');
+
+  // Load state from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedState = localStorage.getItem(DISEASE_DETECTOR_STORAGE_KEY);
+      if (savedState) {
+        const { imagePreview: savedImage, result: savedResult } = JSON.parse(savedState) as StoredDiseaseState;
+        if (savedImage) setImagePreview(savedImage);
+        if (savedResult) setResult(savedResult);
+      }
+    } catch (error) {
+      console.error("Failed to load disease detector state from localStorage", error);
+    }
+  }, []);
+
+  // Save state to localStorage on change
+  useEffect(() => {
+    const stateToStore: StoredDiseaseState = { imagePreview, result };
+    try {
+      localStorage.setItem(DISEASE_DETECTOR_STORAGE_KEY, JSON.stringify(stateToStore));
+    } catch (error) {
+      console.error("Failed to save disease detector state to localStorage", error);
+    }
+  }, [imagePreview, result]);
+
 
   useEffect(() => {
     if (activeTab === 'camera') {
@@ -137,21 +170,45 @@ export function DiseaseDetector() {
     });
   };
 
+  const handleReset = () => {
+    setImagePreview(null);
+    setResult(null);
+    const pictureInput = document.getElementById('picture') as HTMLInputElement;
+    if (pictureInput) {
+        pictureInput.value = '';
+    }
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem(DISEASE_DETECTOR_STORAGE_KEY);
+    }
+    toast({
+        title: 'Cleared',
+        description: 'Image and analysis results have been cleared.'
+    });
+  }
+
   return (
     <div className="grid gap-8 md:grid-cols-2">
       <Card>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <CardHeader>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="upload">
-                <Upload className="mr-2 h-4 w-4" />
-                Upload Image
-              </TabsTrigger>
-              <TabsTrigger value="camera">
-                <Camera className="mr-2 h-4 w-4" />
-                Use Camera
-              </TabsTrigger>
-            </TabsList>
+            <div className='flex justify-between items-center'>
+                <TabsList className="grid grid-cols-2">
+                <TabsTrigger value="upload">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Image
+                </TabsTrigger>
+                <TabsTrigger value="camera">
+                    <Camera className="mr-2 h-4 w-4" />
+                    Use Camera
+                </TabsTrigger>
+                </TabsList>
+                 { (imagePreview || result) && (
+                    <Button variant="ghost" size="sm" onClick={handleReset}>
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        Reset
+                    </Button>
+                )}
+            </div>
           </CardHeader>
           <TabsContent value="upload">
             <CardContent className="space-y-4">

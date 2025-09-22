@@ -40,6 +40,7 @@ import {
   Target,
   Download,
   IndianRupee,
+  RotateCcw,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateCropSuggestions } from '@/ai/flows/generate-crop-suggestions';
@@ -63,6 +64,28 @@ const formSchema = z.object({
   budget: z.coerce.number().min(0, 'Budget must be a positive number.'),
 });
 
+type FormSchemaType = z.infer<typeof formSchema>;
+
+const FARM_DATA_STORAGE_KEY = 'farmManagementData';
+
+const defaultFormValues: FormSchemaType = {
+    name: '',
+    location: '',
+    soilType: 'Loam',
+    ph: 7.0,
+    moisture: 50,
+    temperature: 25,
+    nitrogen: 100,
+    phosphorus: 50,
+    potassium: 50,
+    budget: 50000,
+};
+
+type StoredFarmData = {
+  formData: FormSchemaType,
+  suggestions: GenerateCropSuggestionsOutput | null;
+}
+
 export function FarmManagement() {
   const [suggestions, setSuggestions] =
     useState<GenerateCropSuggestionsOutput | null>(null);
@@ -70,21 +93,41 @@ export function FarmManagement() {
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      location: '',
-      soilType: 'Loam',
-      ph: 7.0,
-      moisture: 50,
-      temperature: 25,
-      nitrogen: 100,
-      phosphorus: 50,
-      potassium: 50,
-      budget: 50000,
-    },
+    defaultValues: defaultFormValues,
   });
+  
+  // Load data from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(FARM_DATA_STORAGE_KEY);
+      if (savedData) {
+        const { formData, suggestions: savedSuggestions } = JSON.parse(savedData) as StoredFarmData;
+        form.reset(formData);
+        if (savedSuggestions) {
+          setSuggestions(savedSuggestions);
+        }
+      }
+    } catch (error) {
+        console.error("Failed to load farm data from localStorage", error);
+    }
+  }, [form]);
+
+  // Save data to localStorage on change
+  const watchedValues = form.watch();
+  useEffect(() => {
+    const dataToStore: StoredFarmData = {
+      formData: watchedValues,
+      suggestions,
+    };
+    try {
+      localStorage.setItem(FARM_DATA_STORAGE_KEY, JSON.stringify(dataToStore));
+    } catch (error) {
+      console.error("Failed to save farm data to localStorage", error);
+    }
+  }, [watchedValues, suggestions]);
+
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     startGeneratingTransition(async () => {
@@ -113,6 +156,18 @@ export function FarmManagement() {
       }
     });
   };
+
+  const handleReset = () => {
+    form.reset(defaultFormValues);
+    setSuggestions(null);
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem(FARM_DATA_STORAGE_KEY);
+    }
+    toast({
+        title: 'Form Reset',
+        description: 'All fields have been cleared.'
+    })
+  }
 
   const handleDownload = () => {
     if (!suggestions) return;
@@ -303,6 +358,7 @@ export function FarmManagement() {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -439,21 +495,31 @@ export function FarmManagement() {
                     </div>
                   </div>
                 </div>
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isGenerating}
-                >
-                  {isGenerating ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="mr-2 h-4 w-4" />
-                  )}
-                  {isGenerating
-                    ? t('farmManagement.generatingSuggestionsButton')
-                    : t('farmManagement.generateSuggestionsButton')}
-                </Button>
+                <div className="flex flex-col-reverse sm:flex-row gap-2">
+                    <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={handleReset}
+                    >
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        Reset Fields
+                    </Button>
+                    <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isGenerating}
+                    >
+                    {isGenerating ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <Sparkles className="mr-2 h-4 w-4" />
+                    )}
+                    {isGenerating
+                        ? t('farmManagement.generatingSuggestionsButton')
+                        : t('farmManagement.generateSuggestionsButton')}
+                    </Button>
+                </div>
               </form>
             </Form>
           </CardContent>
