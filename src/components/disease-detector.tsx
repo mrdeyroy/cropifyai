@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useRef, useEffect } from 'react';
+import { useState, useTransition, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import {
   Card,
@@ -28,11 +28,13 @@ import {
   Trees,
   XCircle,
   RotateCcw,
+  Clock,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { identifyCropDisease } from '@/ai/flows/identify-crop-disease';
 import type { IdentifyCropDiseaseOutput } from '@/lib/types';
 import { useLanguage } from '@/hooks/use-language';
+import { useOnlineStatus } from '@/hooks/use-online-status';
 
 const toDataUri = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -47,27 +49,32 @@ const DISEASE_DETECTOR_STORAGE_KEY = 'diseaseDetectorState';
 type StoredDiseaseState = {
   imagePreview: string | null;
   result: IdentifyCropDiseaseOutput | null;
+  isPending: boolean;
 }
 
 export function DiseaseDetector() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [result, setResult] = useState<IdentifyCropDiseaseOutput | null>(null);
   const [isAnalyzing, startAnalyzingTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const [activeTab, setActiveTab] = useState('upload');
+  const isOnline = useOnlineStatus();
+
 
   // Load state from localStorage on mount
   useEffect(() => {
     try {
       const savedState = localStorage.getItem(DISEASE_DETECTOR_STORAGE_KEY);
       if (savedState) {
-        const { imagePreview: savedImage, result: savedResult } = JSON.parse(savedState) as StoredDiseaseState;
+        const { imagePreview: savedImage, result: savedResult, isPending: savedIsPending } = JSON.parse(savedState) as StoredDiseaseState;
         if (savedImage) setImagePreview(savedImage);
         if (savedResult) setResult(savedResult);
+        if (savedIsPending) setIsPending(savedIsPending);
       }
     } catch (error) {
       console.error("Failed to load disease detector state from localStorage", error);
@@ -76,13 +83,73 @@ export function DiseaseDetector() {
 
   // Save state to localStorage on change
   useEffect(() => {
-    const stateToStore: StoredDiseaseState = { imagePreview, result };
+    const stateToStore: StoredDiseaseState = { imagePreview, result, isPending };
     try {
       localStorage.setItem(DISEASE_DETECTOR_STORAGE_KEY, JSON.stringify(stateToStore));
     } catch (error) {
       console.error("Failed to save disease detector state to localStorage", error);
     }
-  }, [imagePreview, result]);
+  }, [imagePreview, result, isPending]);
+
+    const handleAnalyze = useCallback((isSyncing = false) => {
+    if (!imagePreview) {
+      toast({
+        variant: 'destructive',
+        title: t('diseaseDetector.noImageToastTitle'),
+        description: t('diseaseDetector.noImageToastDescription'),
+      });
+      return;
+    }
+
+    if (!isOnline) {
+      setIsPending(true);
+      toast({
+        title: 'You are offline',
+        description: 'The analysis is queued and will start when you are back online.',
+      });
+      return;
+    }
+
+    if (isSyncing) {
+        window.dispatchEvent(new CustomEvent('sync-start'));
+    }
+
+    startAnalyzingTransition(async () => {
+      try {
+        setIsPending(false);
+        const aiResult = await identifyCropDisease({
+          photoDataUri: imagePreview,
+        });
+
+        setResult(aiResult);
+        if (isSyncing) {
+            toast({
+                title: 'Sync Complete',
+                description: 'Offline analysis has been completed.'
+            });
+        }
+      } catch (error) {
+        console.error('Failed to analyze disease:', error);
+        toast({
+          variant: 'destructive',
+          title: t('diseaseDetector.analysisFailedToastTitle'),
+          description: t('diseaseDetector.analysisFailedToastDescription'),
+        });
+      } finally {
+         if (isSyncing) {
+            window.dispatchEvent(new CustomEvent('sync-end'));
+        }
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imagePreview, isOnline, toast, t]);
+
+  // Effect to run pending analysis when back online
+  useEffect(() => {
+    if (isOnline && isPending && imagePreview) {
+      handleAnalyze(true);
+    }
+  }, [isOnline, isPending, imagePreview, handleAnalyze]);
 
 
   useEffect(() => {
@@ -123,6 +190,7 @@ export function DiseaseDetector() {
     if (file) {
       toDataUri(file).then(setImagePreview);
       setResult(null);
+      setIsPending(false);
     }
   };
 
@@ -138,41 +206,15 @@ export function DiseaseDetector() {
         const dataUri = canvas.toDataURL('image/jpeg');
         setImagePreview(dataUri);
         setResult(null);
+        setIsPending(false);
       }
     }
-  };
-
-  const handleAnalyze = () => {
-    if (!imagePreview) {
-      toast({
-        variant: 'destructive',
-        title: t('diseaseDetector.noImageToastTitle'),
-        description: t('diseaseDetector.noImageToastDescription'),
-      });
-      return;
-    }
-
-    startAnalyzingTransition(async () => {
-      try {
-        const aiResult = await identifyCropDisease({
-          photoDataUri: imagePreview,
-        });
-
-        setResult(aiResult);
-      } catch (error) {
-        console.error('Failed to analyze disease:', error);
-        toast({
-          variant: 'destructive',
-          title: t('diseaseDetector.analysisFailedToastTitle'),
-          description: t('diseaseDetector.analysisFailedToastDescription'),
-        });
-      }
-    });
   };
 
   const handleReset = () => {
     setImagePreview(null);
     setResult(null);
+    setIsPending(false);
     const pictureInput = document.getElementById('picture') as HTMLInputElement;
     if (pictureInput) {
         pictureInput.value = '';
@@ -224,6 +266,7 @@ export function DiseaseDetector() {
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
+                  disabled={isAnalyzing || isPending}
                 />
               </div>
             </CardContent>
@@ -254,7 +297,7 @@ export function DiseaseDetector() {
               </div>
               <Button
                 onClick={handleCapture}
-                disabled={!hasCameraPermission}
+                disabled={!hasCameraPermission || isAnalyzing || isPending}
                 className="w-full"
               >
                 <Camera className="mr-2 h-4 w-4" />
@@ -281,8 +324,8 @@ export function DiseaseDetector() {
 
         <CardFooter>
           <Button
-            onClick={handleAnalyze}
-            disabled={!imagePreview || isAnalyzing}
+            onClick={() => handleAnalyze()}
+            disabled={!imagePreview || isAnalyzing || isPending}
             className="w-full"
           >
             {isAnalyzing ? (
@@ -292,7 +335,7 @@ export function DiseaseDetector() {
             )}
             {isAnalyzing
               ? t('diseaseDetector.analyzingButton')
-              : t('diseaseDetector.analyzeButton')}
+              : isPending ? 'Analysis Queued' : t('diseaseDetector.analyzeButton')}
           </Button>
         </CardFooter>
       </Card>
@@ -311,6 +354,14 @@ export function DiseaseDetector() {
               <p className="mt-4 text-muted-foreground">
                 {t('diseaseDetector.analyzingText')}
               </p>
+            </div>
+          ) : isPending ? (
+            <div className="flex flex-col items-center justify-center h-full text-center border-2 border-dashed rounded-lg p-8">
+                <Clock className="h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-semibold">Analysis Queued</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                    You are currently offline. The analysis will begin automatically when you reconnect.
+                </p>
             </div>
           ) : !result ? (
             <div className="flex flex-col items-center justify-center h-full text-center border-2 border-dashed rounded-lg p-8">

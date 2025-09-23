@@ -22,7 +22,6 @@ import {
   Plus,
   TrendingUp,
   TrendingDown,
-  CirclePlus,
   ArrowUpRight,
   ArrowDownRight,
 } from 'lucide-react';
@@ -39,15 +38,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { useOnlineStatus } from '@/hooks/use-online-status';
+import { useToast } from '@/hooks/use-toast';
 
 const TRANSACTIONS_STORAGE_KEY = 'transactions';
+const PENDING_TRANSACTIONS_STORAGE_KEY = 'pending_transactions';
+
 
 export default function FinancialOverviewPage() {
   const { t } = useLanguage();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const isOnline = useOnlineStatus();
+  const { toast } = useToast();
 
+  // Load transactions from localStorage on mount
   useEffect(() => {
     setIsClient(true);
     try {
@@ -60,6 +66,32 @@ export default function FinancialOverviewPage() {
     }
   }, []);
 
+  // Sync pending transactions when back online
+  useEffect(() => {
+    if (isOnline && isClient) {
+      try {
+        const pending = localStorage.getItem(PENDING_TRANSACTIONS_STORAGE_KEY);
+        if (pending) {
+          const pendingTransactions: Transaction[] = JSON.parse(pending);
+          if (pendingTransactions.length > 0) {
+              window.dispatchEvent(new CustomEvent('sync-start'));
+              setTransactions(prev => [...prev, ...pendingTransactions]);
+              localStorage.removeItem(PENDING_TRANSACTIONS_STORAGE_KEY);
+              toast({
+                  title: 'Sync Complete',
+                  description: `${pendingTransactions.length} pending transaction(s) have been synced.`
+              });
+              window.dispatchEvent(new CustomEvent('sync-end'));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to sync pending transactions", error);
+      }
+    }
+  }, [isOnline, isClient, toast]);
+
+
+  // Save transactions to localStorage on change
   useEffect(() => {
     if (isClient) {
       try {
@@ -100,10 +132,26 @@ export default function FinancialOverviewPage() {
   ).map(([name, value]) => ({ name, value, label: t(`expenseCategories.${name}`) }));
 
   const handleAddTransaction = (newTransaction: Omit<Transaction, 'id'>) => {
-    setTransactions(prev => [
-      ...prev,
-      { ...newTransaction, id: crypto.randomUUID() },
-    ]);
+    const transactionWithId = { ...newTransaction, id: crypto.randomUUID() };
+
+    if (!isOnline) {
+      try {
+        const pending = localStorage.getItem(PENDING_TRANSACTIONS_STORAGE_KEY);
+        const pendingTransactions = pending ? JSON.parse(pending) : [];
+        pendingTransactions.push(transactionWithId);
+        localStorage.setItem(PENDING_TRANSACTIONS_STORAGE_KEY, JSON.stringify(pendingTransactions));
+        toast({
+          title: 'You are offline',
+          description: 'The transaction has been queued and will be saved when you are back online.',
+        });
+      } catch (error) {
+        console.error("Failed to queue transaction", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not queue transaction.'});
+      }
+    } else {
+        setTransactions(prev => [...prev, transactionWithId]);
+    }
+    
     setIsFormOpen(false);
   };
 

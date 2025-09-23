@@ -74,7 +74,14 @@ const generateCropSuggestionsPrompt = ai.definePrompt({
   - profitMargin: An estimated profit margin percentage.
   - sustainabilityScore: A score from 0 to 100 representing how sustainable the crop is for the given conditions (considering water usage, soil health impact, etc.).
   
-  Also, provide a short, overall explanation of your reasoning for the suggestions, making sure to reference how the budget was considered.
+  For the 'reasoning' output, provide a visually appealing analysis using markdown. Do NOT write a summary paragraph. Instead, create a bulleted list where each item represents a key factor you considered. Start each bullet point with a relevant emoji. use line breaks.
+  
+  Example format for reasoning:
+  * 💰 **Budget**: Fits within the provided budget of ₹{{{budget}}}.
+  * 🌱 **Soil & Climate**: The selected crops are well-suited for the {{{soilType}}} soil and the expected weather conditions.
+  * 📈 **Market Trends**: Based on the data from the 'getMarketData' tool, these crops show strong demand in {{{location}}}.
+  * 🌿 **Sustainability**: These options have a good sustainability score, indicating efficient water use and positive impact on soil health.
+
   Ensure the crop suggestions are provided in an array of objects.
   `,
 });

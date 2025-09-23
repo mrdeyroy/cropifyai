@@ -48,9 +48,13 @@ export default function LandingPage() {
       
       <Dialog open={showLogin} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-md p-0">
-          <Card className="border-0 shadow-none">
+            {/* The DialogTitle and DialogDescription are required for accessibility. 
+                They are visually hidden by the LoginForm's own header, but read by screen readers. */}
+            <DialogHeader className="sr-only">
+              <DialogTitle>Sign In</DialogTitle>
+              <DialogDescription>Sign in to your CropifyAI account to access your dashboard.</DialogDescription>
+            </DialogHeader>
             <LoginForm />
-          </Card>
         </DialogContent>
       </Dialog>
     </div>

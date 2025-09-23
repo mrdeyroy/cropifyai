@@ -34,7 +34,7 @@ export function LanguageSelector({ isOpen, onOpenChange }: LanguageSelectorProps
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
-          <Select value={language} onValueChange={(value) => setLanguage(value as 'en' | 'hi' | 'mr')}>
+          <Select value={language} onValueChange={(value) => setLanguage(value as 'en' | 'hi' | 'mr' | 'bn')}>
             <SelectTrigger>
               <SelectValue placeholder={t('languageSelector.selectPlaceholder')} />
             </SelectTrigger>
@@ -42,6 +42,7 @@ export function LanguageSelector({ isOpen, onOpenChange }: LanguageSelectorProps
               <SelectItem value="en">English</SelectItem>
               <SelectItem value="hi">हिंदी (Hindi)</SelectItem>
               <SelectItem value="mr">मराठी (Marathi)</SelectItem>
+              <SelectItem value="bn">বাংলা (Bengali)</SelectItem>
             </SelectContent>
           </Select>
         </div>

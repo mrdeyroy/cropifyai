@@ -272,7 +272,7 @@ export default function SettingsPage() {
               <Select
                 value={language}
                 onValueChange={(value) =>
-                  setLanguage(value as 'en' | 'hi' | 'mr')
+                  setLanguage(value as 'en' | 'hi' | 'mr' | 'bn')
                 }
               >
                 <SelectTrigger id="language">
@@ -284,6 +284,7 @@ export default function SettingsPage() {
                   <SelectItem value="en">English</SelectItem>
                   <SelectItem value="hi">हिंदी (Hindi)</SelectItem>
                   <SelectItem value="mr">मराठी (Marathi)</SelectItem>
+                  <SelectItem value="bn">বাংলা (Bengali)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
