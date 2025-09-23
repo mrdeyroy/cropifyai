@@ -18,7 +18,7 @@ import { useLanguage } from '@/hooks/use-language';
 
 type LanguageSelectorProps = {
   isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
+  onOpenChangeAction: (isOpen: boolean) => void;
 };
 
 export function LanguageSelector({ isOpen, onOpenChange }: LanguageSelectorProps) {
