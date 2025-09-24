@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Header } from '@/components/landing/header';
 import { Hero } from '@/components/landing/hero';
@@ -11,9 +11,8 @@ import { Footer } from '@/components/landing/footer';
 import { ScrollToTop } from '@/components/landing/scroll-to-top';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { LoginForm } from '@/components/login-form';
-import { Card } from '@/components/ui/card';
 
-export default function LandingPage() {
+function LandingPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [showLogin, setShowLogin] = useState(false);
@@ -48,15 +47,24 @@ export default function LandingPage() {
       
       <Dialog open={showLogin} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-md p-0">
-            {/* The DialogTitle and DialogDescription are required for accessibility. 
-                They are visually hidden by the LoginForm's own header, but read by screen readers. */}
-            <DialogHeader className="sr-only">
-              <DialogTitle>Sign In</DialogTitle>
-              <DialogDescription>Sign in to your CropifyAI account to access your dashboard.</DialogDescription>
-            </DialogHeader>
-            <LoginForm />
+          {/* Accessibility elements */}
+          <DialogHeader className="sr-only">
+            <DialogTitle>Sign In</DialogTitle>
+            <DialogDescription>
+              Sign in to your CropifyAI account to access your dashboard.
+            </DialogDescription>
+          </DialogHeader>
+          <LoginForm />
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LandingPageContent />
+    </Suspense>
   );
 }
