@@ -6,7 +6,9 @@ CropifyAI is a smart farming web application that empowers farmers with AI-drive
 🌐 **[Live Demo](https://cropifyai.vercel.app/)**
 
 - **Landing Page**  
-  ![Home Dashboard](./CropifyAI_UI/git_readme_img.png)  
+  ![Landing page]()  
+[![App Screenshot](./CropifyAI_UI/git_readme_img.png)]([https://yourwebsite.com](https://cropifyai.vercel.app/))
+App working video & UI : [Google Drive link](https://drive.google.com/drive/folders/1gAdfFOe9unQAGTFuTdBWIKD4kAUgGU58).
 
 
 ## 🚀 Features  
